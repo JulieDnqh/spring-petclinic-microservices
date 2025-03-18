@@ -60,19 +60,6 @@ pipeline {
                             allowEmptyResults: true
                         )
 
-                    }else {
-                        // Test nhiều services
-                        echo "Testing services: ${env.SERVICES_TO_BUILD}"
-                        for (service in env.SERVICES_TO_BUILD) {
-                            echo "Testing: ${service}"
-                            sh "./mvnw -f ${service}/pom.xml test"
-
-                            // JUnit report (cho từng service)
-                            junit(
-                                testResults: "${service}/target/surefire-reports/*.xml",
-                                allowEmptyResults: true
-                            )
-                        }
                     }
                 }
             }
@@ -99,18 +86,7 @@ pipeline {
                             tools: [[parser: 'JACOCO', pattern: "**/target/site/jacoco/**/*.xml"]]
                         )
 
-                    } else {
-                        // Code coverage cho nhiều service
-                         echo "Generating code coverage for services: ${env.SERVICES_TO_BUILD}"
-                         for(service in env.SERVICES_TO_BUILD){
-                            echo "Generating code coverage for service: ${service}"
-                            sh "./mvnw -f ${service}/pom.xml org.jacoco:jacoco-maven-plugin:report"
-                            recordCoverage(
-                                tools: [[parser: 'JACOCO', pattern: "${service}/target/site/jacoco/**/*.xml"]]
-                            )
-                        }
-
-                    }
+                    } 
                 }
             }
         }
@@ -133,16 +109,7 @@ pipeline {
                         sh "./mvnw clean install -DskipTests"
                         archiveArtifacts artifacts: "**/target/*.jar"
 
-                    } else {
-                         // Build nhiều services
-                        echo "Building services: ${env.SERVICES_TO_BUILD}"
-                        for(service in env.SERVICES_TO_BUILD){
-                          echo "Buiding ${service}"
-                          sh "./mvnw -f ${service}/pom.xml clean install -DskipTests"
-                          archiveArtifacts artifacts: "${service}/target/*.jar"
-
-                        }
-                    }
+                    } 
                 }
             }
         }
