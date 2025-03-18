@@ -123,7 +123,7 @@ pipeline {
 }
 
 // Function to determine which services to build/test
-def determineServices(changedFiles) {
+def determineService(changedFiles) {
     println "Changed Files: ${changedFiles}"
     def services = [
         'spring-petclinic-customers-service',
@@ -132,17 +132,13 @@ def determineServices(changedFiles) {
         'spring-petclinic-api-gateway',
         'spring-petclinic-admin-server'
     ]
-    def servicesToBuild = []
+    // Không cần danh sách servicesToBuild nữa, vì chỉ cần tìm một
 
     for (service in services) {
-         if (changedFiles.any { it.contains(service) }) {
-            servicesToBuild.add(service)
+        if (changedFiles.any { it.contains(service) }) {
+            return service // Trả về ngay khi tìm thấy service đầu tiên
         }
     }
 
-  if (servicesToBuild.isEmpty()) {
-        return [] // Return empty list
-    } else {
-        return servicesToBuild // Trả về danh sách các service cần build
-    }
+    return null // Trả về null nếu không tìm thấy
 }
