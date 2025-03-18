@@ -32,9 +32,9 @@ pipeline {
             }
         }
 
-        stage('Test') {
+       stage('Test') {
             when {
-                expression { env.SERVICES_TO_BUILD != null && env.SERVICES_TO_BUILD != 'all' }
+                expression { env.SERVICES_TO_BUILD != null }
             }
             steps {
                 script {
@@ -49,7 +49,18 @@ pipeline {
                             allowEmptyResults: true
                         )
 
-                    } else {
+                    } else if (env.SERVICES_TO_BUILD == 'all'){
+                         // Test all services
+                        echo "Testing all services"
+                        sh "./mvnw test"
+
+                        // JUnit report
+                        junit(
+                            testResults: "**/target/surefire-reports/*.xml",
+                            allowEmptyResults: true
+                        )
+
+                    }else {
                         // Test nhiều services
                         echo "Testing services: ${env.SERVICES_TO_BUILD}"
                         for (service in env.SERVICES_TO_BUILD) {
@@ -69,7 +80,7 @@ pipeline {
 
         stage('Code Coverage') {
            when {
-                expression { env.SERVICES_TO_BUILD != null && env.SERVICES_TO_BUILD != 'all' }
+                expression { env.SERVICES_TO_BUILD != null }
            }
             steps {
                 script {
@@ -80,6 +91,14 @@ pipeline {
                         recordCoverage(
                             tools: [[parser: 'JACOCO', pattern: "${env.SERVICES_TO_BUILD}/target/site/jacoco/**/*.xml"]]
                         )
+                    } else if(env.SERVICES_TO_BUILD == 'all'){
+                         // Test all services
+                        echo "Generating code coverage for all services"
+                        sh "./mvnw  org.jacoco:jacoco-maven-plugin:report"
+                         recordCoverage(
+                            tools: [[parser: 'JACOCO', pattern: "**/target/site/jacoco/**/*.xml"]]
+                        )
+
                     } else {
                         // Code coverage cho nhiều service
                          echo "Generating code coverage for services: ${env.SERVICES_TO_BUILD}"
