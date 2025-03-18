@@ -14,7 +14,7 @@ pipeline {
                     // Lấy danh sách các file đã thay đổi
                     env.CHANGED_FILES = sh(returnStdout: true, script: 'git diff --name-only HEAD^ HEAD').trim()
                     // Xác định service nào cần build/test
-                    def servicesToBuild = determineServices(env.CHANGED_FILES.readLines())
+                    def servicesToBuild = determineService(env.CHANGED_FILES.readLines())
 
                     // Kiểm tra xem có thay đổi nào nằm ngoài các thư mục service không
                     def changedOutsideServices = env.CHANGED_FILES.readLines().any { filePath ->
