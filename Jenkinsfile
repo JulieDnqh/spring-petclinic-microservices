@@ -38,7 +38,7 @@ pipeline {
             }
             steps {
                 script {
-                    if (env.SERVICES_TO_BUILD instanceof String) {
+                    if (env.SERVICES_TO_BUILD instanceof String && env.SERVICES_TO_BUILD != 'all') {
                         // Test 1 service
                         echo "Testing service: ${env.SERVICES_TO_BUILD}"
                         sh "./mvnw -f ${env.SERVICES_TO_BUILD}/pom.xml test"
@@ -84,7 +84,7 @@ pipeline {
            }
             steps {
                 script {
-                   if (env.SERVICES_TO_BUILD instanceof String) {
+                   if (env.SERVICES_TO_BUILD instanceof String && env.SERVICES_TO_BUILD != 'all') {
                         // Code coverage cho 1 service
                         echo "Generating code coverage for service: ${env.SERVICES_TO_BUILD}"
                         sh "./mvnw -f ${env.SERVICES_TO_BUILD}/pom.xml org.jacoco:jacoco-maven-plugin:report"
