@@ -137,6 +137,10 @@ pipeline {
                 script {
                     docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID) { // <-- Sửa credentialsId
                         try{
+                            echo "Current directory before Maven build: ${pwd()}"
+                            echo "Checking for mvnw.cmd presence:"
+                            bat 'dir mvnw.cmd'
+                            
                             // Xây dựng lệnh Maven cho Windows
                             def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
                                              "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
