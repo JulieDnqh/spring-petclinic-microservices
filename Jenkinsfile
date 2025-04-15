@@ -186,7 +186,7 @@ def buildAndPushImage(String serviceName, String imageName) {
     echo "Service Directory: ${serviceDir}"
 
     // Use docker.withRegistry to handle Docker Hub authentication
-    docker.withRegistry("https://index.docker.io/v1/", DOCKERHUB_CREDENTIALS_ID) {
+    docker.withRegistry("https://index.docker.io/v1/", '22127146') {
         try {
             // Change directory to the specific microservice
             dir(serviceDir) {
