@@ -41,9 +41,11 @@ pipeline {
                     }
 
                     // Lấy username từ credentials và định nghĩa DOCKERHUB_USERNAME, DOCKER_REGISTRY
-                    def dockerCreds = credentials(env.DOCKERHUB_CREDENTIALS_ID)
-                    env.DOCKERHUB_USERNAME = dockerCreds.username
-                    env.DOCKER_REGISTRY = "${env.DOCKERHUB_USERNAME}"
+                    //def dockerCreds = credentials(env.DOCKERHUB_CREDENTIALS_ID)
+                    //env.DOCKERHUB_USERNAME = dockerCreds.username
+                    //env.DOCKER_REGISTRY = "${env.DOCKERHUB_USERNAME}"
+                    env.DOCKERHUB_USERNAME = '22127146'
+                    env.DOCKER_REGISTRY = '22127146'
                     
                     env.BRANCH_NAME = env.BRANCH_NAME // Already available in Multibranch Pipeline
                     echo "Building branch: ${env.BRANCH_NAME}"
