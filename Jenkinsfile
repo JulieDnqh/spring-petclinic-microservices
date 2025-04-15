@@ -138,8 +138,7 @@ pipeline {
                 // Đảm bảo Docker login thành công trước khi chạy Maven
                 // Maven sẽ đọc cấu hình login từ file config do bước này tạo ra
                 docker.withRegistry("https://index.docker.io/v1/", DOCKERHUB_CREDENTIALS_ID) {
-                    echo "Building and pushing all images using Maven..."
-                    script {
+                    try{
                         // Xây dựng lệnh Maven cho Windows
                         // Sử dụng .\mvnw.cmd
                         // Truyền các tham số -D để cấu hình build/push
@@ -152,6 +151,14 @@ pipeline {
                         echo "Executing Maven command on Windows: ${mvnCommand}"
                         // Thực thi lệnh bằng bat
                         bat mvnCommand
+                    }
+                    catch (e) {
+                        echo "Error building/pushing images via Maven: ${e.getMessage()}"
+                        // Fail the stage explicitly
+                        error("Failed to build and push images via Maven")
+                    } finally {
+                        // Optional: Clean up the built image locally to save space on the agent
+                        // sh "docker rmi ${imageName}"
                     }
                 }
             }
