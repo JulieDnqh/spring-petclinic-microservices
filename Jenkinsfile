@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         // Use the ID you created in Jenkins Credentials for Docker Hub
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-2'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
         // Extract Docker Hub username from the credentials
         // This requires the Credentials Binding plugin
         //DOCKERHUB_USERNAME     = credentials(DOCKERHUB_CREDENTIALS_ID).username
