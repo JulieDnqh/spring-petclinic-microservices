@@ -137,7 +137,7 @@ pipeline {
             steps {
                 // Đảm bảo Docker login thành công trước khi chạy Maven
                 // Maven sẽ đọc cấu hình login từ file config do bước này tạo ra
-                withDockerRegistry(registry: [url: "https://index.docker.io/v1/", credentialsId: env.DOCKERHUB_CREDENTIALS_ID]) {
+                withDockerRegistry(registry: [url: "https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID]) {
                     script {
                         // Xây dựng lệnh Maven cho Windows
                         // Sử dụng .\mvnw.cmd
