@@ -13,7 +13,6 @@ pipeline {
     }
 
     options {
-        cleanWs()
         // Set a timeout for the entire pipeline
         timeout(time: 30, unit: 'MINUTES')
         // Keep a reasonable number of build logs
@@ -23,6 +22,13 @@ pipeline {
     }
 
     stages {
+        stage('Prepare Workspace') {
+            steps {
+                echo 'Cleaning workspace...'
+                cleanWs() // <-- ĐẶT cleanWs() Ở ĐÂY
+            }
+        }
+
         stage('Initialize') {
             steps {
                 script {
