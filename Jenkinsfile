@@ -186,10 +186,10 @@ def buildAndPushImage(String serviceName, String imageName) {
 
                 // Build the application JAR using Maven wrapper
                 // Skip tests for faster CI build, run tests in a separate stage/job if needed
-                echo "Building JAR for ${serviceName}..."
+                //echo "Building JAR for ${serviceName}..."
                 //sh './mvnw clean package -DskipTests'
                 //bat '.\\mvnw.cmd clean package -DskipTests'
-                bat 'cmd /c mvnw.cmd clean package -DskipTests'
+                //bat 'cmd /c mvnw.cmd clean package -DskipTests'
 
                 // Build the Docker image using the Dockerfile in the service directory
                 echo "Building Docker image ${imageName}..."
