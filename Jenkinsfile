@@ -175,13 +175,13 @@ def buildAndPushImage(String serviceName, String imageName) {
             dir(serviceDir) {
                 // Ensure mvnw is executable (sometimes lost on clone)
                 //sh 'chmod +x ./mvnw'
-                bat 'chmod +x ./mvnw'
+                //bat 'chmod +x ./mvnw'
 
                 // Build the application JAR using Maven wrapper
                 // Skip tests for faster CI build, run tests in a separate stage/job if needed
                 echo "Building JAR for ${serviceName}..."
                 //sh './mvnw clean package -DskipTests'
-                bat './mvnw clean package -DskipTests'
+                bat '.\\mvnw.cmd clean package -DskipTests'
 
                 // Build the Docker image using the Dockerfile in the service directory
                 echo "Building Docker image ${imageName}..."
