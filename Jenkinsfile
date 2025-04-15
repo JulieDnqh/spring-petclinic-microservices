@@ -55,110 +55,104 @@ pipeline {
                     echo "Docker Registry (for image prefix): ${env.DOCKER_REGISTRY}"
 
                     // Kiểm tra xem có lấy được username không
-                    if (!env.DOCKERHUB_USERNAME) {
-                        error("Could not retrieve Docker Hub username from credentials ID: ${env.DOCKERHUB_CREDENTIALS_ID}")
-                    }
+                    // if (!env.DOCKERHUB_USERNAME) {
+                    //     error("Could not retrieve Docker Hub username from credentials ID: ${env.DOCKERHUB_CREDENTIALS_ID}")
+                    // }
                 }
             }
         }
 
-        stage('Build and Push Microservice Images') {
-            // Run builds for different services in parallel for speed
-            parallel {
-                // stage('Build & Push Customers Service') {
-                //     steps {
-                //         script {
-                //             def serviceName = 'customers-service'
-                //             def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                //             buildAndPushImage(serviceName, imageName)
-                //         }
-                //     }
-                // }
-                // stage('Build & Push Vets Service') {
-                //     steps {
-                //         script {
-                //             def serviceName = 'vets-service'
-                //             def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                //             buildAndPushImage(serviceName, imageName)
-                //         }
-                //     }
-                // }
-                // stage('Build & Push Visits Service') {
-                //     steps {
-                //         script {
-                //             def serviceName = 'visits-service'
-                //             def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                //             buildAndPushImage(serviceName, imageName)
-                //         }
-                //     }
-                // }
-                // stage('Build & Push API Gateway') {
-                //     steps {
-                //         script {
-                //             def serviceName = 'api-gateway'
-                //             def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                //             buildAndPushImage(serviceName, imageName)
-                //         }
-                //     }
-                // }
-                //  stage('Build & Push Config Server') {
-                //      steps {
-                //          script {
-                //              def serviceName = 'config-server'
-                //              def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                //              buildAndPushImage(serviceName, imageName)
-                //          }
-                //      }
-                //  }
-                //  stage('Build & Push Discovery Server') {
-                //      steps {
-                //          script {
-                //              def serviceName = 'discovery-server'
-                //              def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                //              buildAndPushImage(serviceName, imageName)
-                //          }
-                //      }
-                //  }
-                //  stage('Build & Push Admin Server') {
-                //      steps {
-                //          script {
-                //              def serviceName = 'admin-server'
-                //              def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                //              buildAndPushImage(serviceName, imageName)
-                //          }
-                //      }
-                //  }
-                // Add stages for other services (config-server, discovery-server, admin-server) similarly
-                // Note: The genai-service is not in the base repo, handle it if you added it separately.
-            }
-        }
+        // stage('Build and Push Microservice Images') {
+        //     // Run builds for different services in parallel for speed
+        //     parallel {
+        //         stage('Build & Push Customers Service') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'customers-service'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //         stage('Build & Push Vets Service') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'vets-service'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //         stage('Build & Push Visits Service') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'visits-service'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //         stage('Build & Push API Gateway') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'api-gateway'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //          stage('Build & Push Config Server') {
+        //              steps {
+        //                  script {
+        //                      def serviceName = 'config-server'
+        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                      buildAndPushImage(serviceName, imageName)
+        //                  }
+        //              }
+        //          }
+        //          stage('Build & Push Discovery Server') {
+        //              steps {
+        //                  script {
+        //                      def serviceName = 'discovery-server'
+        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                      buildAndPushImage(serviceName, imageName)
+        //                  }
+        //              }
+        //          }
+        //          stage('Build & Push Admin Server') {
+        //              steps {
+        //                  script {
+        //                      def serviceName = 'admin-server'
+        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                      buildAndPushImage(serviceName, imageName)
+        //                  }
+        //              }
+        //          }
+                
+        //     }
+        // }
 
         stage('Build and Push All Images via Maven') {
             steps {
-                // Đảm bảo Docker login thành công trước khi chạy Maven
-                // Maven sẽ đọc cấu hình login từ file config do bước này tạo ra
-                docker.withRegistry("https://index.docker.io/v1/", DOCKERHUB_CREDENTIALS_ID) {
-                    try{
-                        // Xây dựng lệnh Maven cho Windows
-                        // Sử dụng .\mvnw.cmd
-                        // Truyền các tham số -D để cấu hình build/push
-                        def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
-                                         "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
-                                         "-Ddocker.image.tag=${env.COMMIT_ID} " +
-                                         "-Dcontainer.build.extraarg=\"--push\" " +
-                                         "-Dcontainer.platform=\"linux/amd64\"" // Build image cho linux/amd64
+                script {
+                    docker.withRegistry(registry: [url: "https://index.docker.io/v1/", credentialsId: env.DOCKERHUB_CREDENTIALS_ID]) { // <-- Sửa credentialsId
+                        try{
+                            // Xây dựng lệnh Maven cho Windows
+                            def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
+                                             "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
+                                             "-Ddocker.image.tag=${env.COMMIT_ID} " +
+                                             "-Dcontainer.build.extraarg=\"--push\" " +
+                                             "-Dcontainer.platform=\"linux/amd64\""
 
-                        echo "Executing Maven command on Windows: ${mvnCommand}"
-                        // Thực thi lệnh bằng bat
-                        bat mvnCommand
-                    }
-                    catch (e) {
-                        echo "Error building/pushing images via Maven: ${e.getMessage()}"
-                        // Fail the stage explicitly
-                        error("Failed to build and push images via Maven")
-                    } finally {
-                        // Optional: Clean up the built image locally to save space on the agent
-                        // sh "docker rmi ${imageName}"
+                            echo "Executing Maven command on Windows: ${mvnCommand}"
+                            bat mvnCommand
+                        }
+                        catch (e) {
+                            echo "Error building/pushing images via Maven: ${e.getMessage()}"
+                            // Fail the stage explicitly
+                            error(message: "Failed to build and push images via Maven") // <-- Sửa error
+                        }
+                        // finally block không cần thiết nếu không có cleanup đặc biệt
                     }
                 }
             }
