@@ -7,9 +7,9 @@ pipeline {
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
         // Extract Docker Hub username from the credentials
         // This requires the Credentials Binding plugin
-        DOCKERHUB_USERNAME     = credentials(DOCKERHUB_CREDENTIALS_ID).username
+        //DOCKERHUB_USERNAME     = credentials(DOCKERHUB_CREDENTIALS_ID).username
         // Define your Docker Hub repository prefix (usually your username)
-        DOCKER_REGISTRY        = "${env.DOCKERHUB_USERNAME}"
+        //DOCKER_REGISTRY        = "${env.DOCKERHUB_USERNAME}"
     }
 
     options {
@@ -25,13 +25,43 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
-                    // Get the short commit hash to use as the image tag
+                    
                     //env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    //env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    
+                    if (env.GIT_COMMIT) {
+                        env.COMMIT_ID = env.GIT_COMMIT.take(7)
+                    } else {
+                         // Cách 2: Dùng bat (Windows)
+                        env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        // Hoặc powershell:
+                        // env.COMMIT_ID = powershell(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        // Hoặc sh (Linux/macOS):
+                        // env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    }
+
+                    // Lấy username từ credentials và định nghĩa DOCKERHUB_USERNAME, DOCKER_REGISTRY
+                    def dockerCreds = credentials(env.DOCKERHUB_CREDENTIALS_ID)
+                    env.DOCKERHUB_USERNAME = dockerCreds.username
+                    env.DOCKER_REGISTRY = "${env.DOCKERHUB_USERNAME}"
+                    
                     env.BRANCH_NAME = env.BRANCH_NAME // Already available in Multibranch Pipeline
                     echo "Building branch: ${env.BRANCH_NAME}"
                     echo "Commit ID: ${env.COMMIT_ID}"
                     echo "Docker Registry: ${env.DOCKER_REGISTRY}"
+
+                    // In ra để kiểm tra
+                    env.BRANCH_NAME = env.BRANCH_NAME // Already available
+                    echo "Building branch: ${env.BRANCH_NAME}"
+                    echo "Commit ID: ${env.COMMIT_ID}"
+                    echo "Docker Hub Credentials ID: ${env.DOCKERHUB_CREDENTIALS_ID}"
+                    echo "Docker Hub Username: ${env.DOCKERHUB_USERNAME}"
+                    echo "Docker Registry: ${env.DOCKER_REGISTRY}"
+
+                    // Kiểm tra xem có lấy được username không
+                    if (!env.DOCKERHUB_USERNAME) {
+                        error("Could not retrieve Docker Hub username from credentials ID: ${env.DOCKERHUB_CREDENTIALS_ID}")
+                    }
                 }
             }
         }
