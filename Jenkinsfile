@@ -26,6 +26,7 @@ pipeline {
             steps {
                 echo 'Cleaning workspace...'
                 cleanWs()
+                checkout scm
             }
         }
 
