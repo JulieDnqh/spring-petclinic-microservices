@@ -9,7 +9,7 @@ pipeline {
         // This requires the Credentials Binding plugin
         //DOCKERHUB_USERNAME     = credentials(DOCKERHUB_CREDENTIALS_ID).username
         // Define your Docker Hub repository prefix (usually your username)
-        //DOCKER_REGISTRY        = "${env.DOCKERHUB_USERNAME}"
+        DOCKER_REGISTRY        = '22127146'
     }
 
     options {
@@ -47,25 +47,12 @@ pipeline {
                         // env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     }
 
-                    // Lấy username từ credentials và định nghĩa DOCKERHUB_USERNAME, DOCKER_REGISTRY
-                    //def dockerCreds = credentials(env.DOCKERHUB_CREDENTIALS_ID)
-                    //env.DOCKERHUB_USERNAME = dockerCreds.username
-                    //env.DOCKER_REGISTRY = "${env.DOCKERHUB_USERNAME}"
-                    env.DOCKERHUB_USERNAME = '22127146'
-                    env.DOCKER_REGISTRY = '22127146'
-                    
-                    env.BRANCH_NAME = env.BRANCH_NAME // Already available in Multibranch Pipeline
-                    echo "Building branch: ${env.BRANCH_NAME}"
-                    echo "Commit ID: ${env.COMMIT_ID}"
-                    echo "Docker Registry: ${env.DOCKER_REGISTRY}"
-
                     // In ra để kiểm tra
-                    env.BRANCH_NAME = env.BRANCH_NAME // Already available
+                    env.BRANCH_NAME = env.BRANCH_NAME // Jenkins tự cung cấp
                     echo "Building branch: ${env.BRANCH_NAME}"
                     echo "Commit ID: ${env.COMMIT_ID}"
                     echo "Docker Hub Credentials ID: ${env.DOCKERHUB_CREDENTIALS_ID}"
-                    echo "Docker Hub Username: ${env.DOCKERHUB_USERNAME}"
-                    echo "Docker Registry: ${env.DOCKER_REGISTRY}"
+                    echo "Docker Registry (for image prefix): ${env.DOCKER_REGISTRY}"
 
                     // Kiểm tra xem có lấy được username không
                     if (!env.DOCKERHUB_USERNAME) {
@@ -75,74 +62,97 @@ pipeline {
             }
         }
 
-        stage('Build and Push Microservice Images') {
-            // Run builds for different services in parallel for speed
-            parallel {
-                stage('Build & Push Customers Service') {
-                    steps {
-                        script {
-                            def serviceName = 'customers-service'
-                            def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                            buildAndPushImage(serviceName, imageName)
-                        }
+        // stage('Build and Push Microservice Images') {
+        //     // Run builds for different services in parallel for speed
+        //     parallel {
+        //         stage('Build & Push Customers Service') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'customers-service'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //         stage('Build & Push Vets Service') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'vets-service'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //         stage('Build & Push Visits Service') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'visits-service'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //         stage('Build & Push API Gateway') {
+        //             steps {
+        //                 script {
+        //                     def serviceName = 'api-gateway'
+        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                     buildAndPushImage(serviceName, imageName)
+        //                 }
+        //             }
+        //         }
+        //          stage('Build & Push Config Server') {
+        //              steps {
+        //                  script {
+        //                      def serviceName = 'config-server'
+        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                      buildAndPushImage(serviceName, imageName)
+        //                  }
+        //              }
+        //          }
+        //          stage('Build & Push Discovery Server') {
+        //              steps {
+        //                  script {
+        //                      def serviceName = 'discovery-server'
+        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                      buildAndPushImage(serviceName, imageName)
+        //                  }
+        //              }
+        //          }
+        //          stage('Build & Push Admin Server') {
+        //              steps {
+        //                  script {
+        //                      def serviceName = 'admin-server'
+        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
+        //                      buildAndPushImage(serviceName, imageName)
+        //                  }
+        //              }
+        //          }
+        //         // Add stages for other services (config-server, discovery-server, admin-server) similarly
+        //         // Note: The genai-service is not in the base repo, handle it if you added it separately.
+        //     }
+        // }
+
+        stage('Build and Push All Images via Maven') {
+            steps {
+                // Đảm bảo Docker login thành công trước khi chạy Maven
+                // Maven sẽ đọc cấu hình login từ file config do bước này tạo ra
+                withDockerRegistry(registry: [url: "https://index.docker.io/v1/", credentialsId: env.DOCKERHUB_CREDENTIALS_ID]) {
+                    script {
+                        // Xây dựng lệnh Maven cho Windows
+                        // Sử dụng .\mvnw.cmd
+                        // Truyền các tham số -D để cấu hình build/push
+                        def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
+                                         "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
+                                         "-Ddocker.image.tag=${env.COMMIT_ID} " +
+                                         "-Dcontainer.build.extraarg=\"--push\" " +
+                                         "-Dcontainer.platform=\"linux/amd64\"" // Build image cho linux/amd64
+
+                        echo "Executing Maven command on Windows: ${mvnCommand}"
+                        // Thực thi lệnh bằng bat
+                        bat mvnCommand
                     }
                 }
-                stage('Build & Push Vets Service') {
-                    steps {
-                        script {
-                            def serviceName = 'vets-service'
-                            def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                            buildAndPushImage(serviceName, imageName)
-                        }
-                    }
-                }
-                stage('Build & Push Visits Service') {
-                    steps {
-                        script {
-                            def serviceName = 'visits-service'
-                            def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                            buildAndPushImage(serviceName, imageName)
-                        }
-                    }
-                }
-                stage('Build & Push API Gateway') {
-                    steps {
-                        script {
-                            def serviceName = 'api-gateway'
-                            def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                            buildAndPushImage(serviceName, imageName)
-                        }
-                    }
-                }
-                 stage('Build & Push Config Server') {
-                     steps {
-                         script {
-                             def serviceName = 'config-server'
-                             def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                             buildAndPushImage(serviceName, imageName)
-                         }
-                     }
-                 }
-                 stage('Build & Push Discovery Server') {
-                     steps {
-                         script {
-                             def serviceName = 'discovery-server'
-                             def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                             buildAndPushImage(serviceName, imageName)
-                         }
-                     }
-                 }
-                 stage('Build & Push Admin Server') {
-                     steps {
-                         script {
-                             def serviceName = 'admin-server'
-                             def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-                             buildAndPushImage(serviceName, imageName)
-                         }
-                     }
-                 }
-                // Add stages for other services (config-server, discovery-server, admin-server) similarly
-                // Note: The genai-service is not in the base repo, handle it if you added it separately.
             }
         }
     }
