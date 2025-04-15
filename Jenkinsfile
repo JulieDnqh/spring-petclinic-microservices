@@ -135,7 +135,7 @@ pipeline {
         stage('Build and Push All Images via Maven') {
             steps {
                 script {
-                    docker.withRegistry(registry: [url: "https://index.docker.io/v1/", credentialsId: env.DOCKERHUB_CREDENTIALS_ID]) { // <-- Sửa credentialsId
+                    docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID) { // <-- Sửa credentialsId
                         try{
                             // Xây dựng lệnh Maven cho Windows
                             def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
