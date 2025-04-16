@@ -1,24 +1,18 @@
 // Jenkinsfile
 pipeline {
-    //agent any
-    agent { label 'huong-agent' }
+    // Chỉ định agent Linux của bạn
+    agent { label 'huong-agent' } // Đảm bảo label này đúng với agent Ubuntu của bạn
 
     environment {
-        // Use the ID you created in Jenkins Credentials for Docker Hub
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
-        // Extract Docker Hub username from the credentials
-        // This requires the Credentials Binding plugin
-        //DOCKERHUB_USERNAME     = credentials(DOCKERHUB_CREDENTIALS_ID).username
-        // Define your Docker Hub repository prefix (usually your username)
-        DOCKER_REGISTRY        = '22127146'
+        // Bạn CÓ THỂ lấy username nếu cần, nhưng hãy đảm bảo Credentials Binding Plugin được cài đặt
+        // DOCKERHUB_USERNAME     = credentials(DOCKERHUB_CREDENTIALS_ID).username
+        DOCKER_REGISTRY        = '22127146' // Tên Docker Hub username hoặc organization của bạn
     }
 
     options {
-        // Set a timeout for the entire pipeline
         timeout(time: 30, unit: 'MINUTES')
-        // Keep a reasonable number of build logs
         buildDiscarder(logRotator(numToKeepStr: '10'))
-        // Do not allow parallel builds of the same branch
         disableConcurrentBuilds()
     }
 
@@ -26,139 +20,77 @@ pipeline {
         stage('Prepare Workspace') {
             steps {
                 echo 'Cleaning workspace...'
+                // Xóa workspace để đảm bảo môi trường sạch
                 cleanWs()
+                // Checkout code từ SCM đã cấu hình
+                echo 'Checking out source code...'
                 checkout scm
+                // Quan trọng: Đảm bảo script mvnw có quyền thực thi trên Linux
+                echo 'Setting execute permission for mvnw script...'
+                sh 'chmod +x mvnw'
             }
         }
 
         stage('Initialize') {
             steps {
                 script {
-                    
-                    //env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    //env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    
+                    // Lấy 7 ký tự đầu của commit hash
+                    // Biến env.GIT_COMMIT thường được cung cấp bởi Jenkins sau khi checkout scm
                     if (env.GIT_COMMIT) {
                         env.COMMIT_ID = env.GIT_COMMIT.take(7)
                     } else {
-                         // Cách 2: Dùng bat (Windows)
-                        env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        // Hoặc powershell:
-                        // env.COMMIT_ID = powershell(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        // Hoặc sh (Linux/macOS):
-                        // env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        // Nếu env.GIT_COMMIT không có sẵn, thử lấy bằng lệnh git trực tiếp
+                        echo 'env.GIT_COMMIT not found, trying git command...'
+                        // Sử dụng sh cho Linux
+                        env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     }
 
-                    // In ra để kiểm tra
+                    // In ra các biến môi trường để kiểm tra
                     env.BRANCH_NAME = env.BRANCH_NAME // Jenkins tự cung cấp
                     echo "Building branch: ${env.BRANCH_NAME}"
                     echo "Commit ID: ${env.COMMIT_ID}"
                     echo "Docker Hub Credentials ID: ${env.DOCKERHUB_CREDENTIALS_ID}"
                     echo "Docker Registry (for image prefix): ${env.DOCKER_REGISTRY}"
 
-                    // Kiểm tra xem có lấy được username không
-                    // if (!env.DOCKERHUB_USERNAME) {
-                    //     error("Could not retrieve Docker Hub username from credentials ID: ${env.DOCKERHUB_CREDENTIALS_ID}")
-                    // }
+                    // Kiểm tra xem COMMIT_ID có giá trị không
+                    if (!env.COMMIT_ID) {
+                       error("Could not determine Commit ID.")
+                    }
                 }
             }
         }
 
-        // stage('Build and Push Microservice Images') {
-        //     // Run builds for different services in parallel for speed
-        //     parallel {
-        //         stage('Build & Push Customers Service') {
-        //             steps {
-        //                 script {
-        //                     def serviceName = 'customers-service'
-        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-        //                     buildAndPushImage(serviceName, imageName)
-        //                 }
-        //             }
-        //         }
-        //         stage('Build & Push Vets Service') {
-        //             steps {
-        //                 script {
-        //                     def serviceName = 'vets-service'
-        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-        //                     buildAndPushImage(serviceName, imageName)
-        //                 }
-        //             }
-        //         }
-        //         stage('Build & Push Visits Service') {
-        //             steps {
-        //                 script {
-        //                     def serviceName = 'visits-service'
-        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-        //                     buildAndPushImage(serviceName, imageName)
-        //                 }
-        //             }
-        //         }
-        //         stage('Build & Push API Gateway') {
-        //             steps {
-        //                 script {
-        //                     def serviceName = 'api-gateway'
-        //                     def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-        //                     buildAndPushImage(serviceName, imageName)
-        //                 }
-        //             }
-        //         }
-        //          stage('Build & Push Config Server') {
-        //              steps {
-        //                  script {
-        //                      def serviceName = 'config-server'
-        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-        //                      buildAndPushImage(serviceName, imageName)
-        //                  }
-        //              }
-        //          }
-        //          stage('Build & Push Discovery Server') {
-        //              steps {
-        //                  script {
-        //                      def serviceName = 'discovery-server'
-        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-        //                      buildAndPushImage(serviceName, imageName)
-        //                  }
-        //              }
-        //          }
-        //          stage('Build & Push Admin Server') {
-        //              steps {
-        //                  script {
-        //                      def serviceName = 'admin-server'
-        //                      def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${serviceName}:${env.COMMIT_ID}"
-        //                      buildAndPushImage(serviceName, imageName)
-        //                  }
-        //              }
-        //          }
-                
-        //     }
-        // }
+        // Stage này bị comment, giữ nguyên hoặc xóa nếu không dùng
+        // stage('Build and Push Microservice Images') { ... }
 
         stage('Build and Push All Images via Maven') {
             steps {
                 script {
-                    docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID) { // <-- Sửa credentialsId
-                        try{
+                    // Đăng nhập vào Docker Hub sử dụng credentials đã lưu trong Jenkins
+                    docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID) {
+                        try {
                             echo "Current directory before Maven build: ${pwd()}"
-                            echo "Checking for mvnw.cmd presence:"
-                            bat 'dir mvnw.cmd'
-                            
-                            // Xây dựng lệnh Maven cho Windows
-                            def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
+                            // Kiểm tra sự tồn tại của mvnw (tùy chọn)
+                            echo "Checking for mvnw presence:"
+                            sh 'ls -l mvnw' // Sử dụng ls trên Linux
+
+                            // Xây dựng lệnh Maven cho Linux
+                            // Sử dụng ./mvnw thay vì .\\mvnw.cmd
+                            def mvnCommand = "./mvnw clean install -P buildDocker -DskipTests " +
                                              "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
                                              "-Ddocker.image.tag=${env.COMMIT_ID} " +
-                                             "-Dcontainer.build.extraarg=\"--push\" " +
-                                             "-Dcontainer.platform=\"linux/amd64\""
+                                             "-Dcontainer.build.extraarg=\"--push\" " + // Đẩy image sau khi build
+                                             "-Dcontainer.platform=\"linux/amd64\"" // Chỉ định platform (hữu ích cho cross-compiling, nhưng có thể không cần nếu agent là linux/amd64)
 
-                            echo "Executing Maven command on Windows: ${mvnCommand}"
-                            bat mvnCommand
+                            echo "Executing Maven command on Linux: ${mvnCommand}"
+                            // Sử dụng sh để chạy lệnh trên Linux
+                            sh mvnCommand
                         }
                         catch (e) {
                             echo "Error building/pushing images via Maven: ${e.getMessage()}"
-                            // Fail the stage explicitly
-                            error(message: "Failed to build and push images via Maven") // <-- Sửa error
+                            // Gây lỗi stage một cách rõ ràng
+                            error(message: "Failed to build and push images via Maven: ${e.getMessage()}")
                         }
-                        // finally block không cần thiết nếu không có cleanup đặc biệt
                     }
                 }
             }
@@ -166,51 +98,51 @@ pipeline {
     }
 
     post {
-        // Always run regardless of build status
         always {
             echo 'CI Pipeline finished.'
-            // Optional: Clean up workspace, Docker images etc.
-            // cleanWs()
+            // Có thể thêm các bước dọn dẹp khác ở đây nếu cần
+            // cleanWs() // Có thể dọn dẹp lại workspace nếu muốn
         }
         success {
             echo "Successfully built and pushed images for commit ${env.COMMIT_ID} on branch ${env.BRANCH_NAME}"
         }
         failure {
             echo "Pipeline failed for commit ${env.COMMIT_ID} on branch ${env.BRANCH_NAME}"
-            // Add notifications here (e.g., email, Slack) if desired
+            // Thêm thông báo lỗi (email, Slack,...) nếu muốn
         }
     }
 }
 
-// Helper function to build and push a Docker image for a specific service
-// Assumes each service has a Dockerfile in its root directory
-// Assumes Maven wrapper (mvnw) is used for building the JAR
+// Helper function này đang bị comment ở stage gọi nó, nhưng nếu dùng thì cũng cần sửa
+// def buildAndPushImage(String serviceName, String imageName) { ... }
+// Nếu bạn dùng lại hàm này, hãy đảm bảo bên trong nó cũng sử dụng sh và ./mvnw
+/*
+// Ví dụ sửa hàm buildAndPushImage cho Linux:
 def buildAndPushImage(String serviceName, String imageName) {
-    // Construct the directory path based on the standard project structure
     def serviceDir = "spring-petclinic-${serviceName}"
-
     echo "Building Docker image for ${serviceName}..."
     echo "Image Name: ${imageName}"
     echo "Service Directory: ${serviceDir}"
 
-    // Use docker.withRegistry to handle Docker Hub authentication
     docker.withRegistry("https://index.docker.io/v1/", DOCKERHUB_CREDENTIALS_ID) {
         try {
-            // Change directory to the specific microservice
             dir(serviceDir) {
-                bat ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
-                    "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
-                    "-Ddocker.image.tag=${env.COMMIT_ID} " +
-                    "-Dcontainer.build.extraarg=\"--push\" " +
-                    "-Dcontainer.platform=\"linux/amd64\""
+                // Đảm bảo mvnw trong thư mục con cũng có quyền thực thi
+                sh 'chmod +x mvnw'
+                // Sử dụng sh và ./mvnw
+                sh "./mvnw clean install -P buildDocker -DskipTests " +
+                   "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
+                   "-Ddocker.image.tag=${env.COMMIT_ID} " +
+                   "-Dcontainer.build.extraarg=\"--push\" " +
+                   "-Dcontainer.platform=\"linux/amd64\""
             }
         } catch (e) {
             echo "Error building/pushing image for ${serviceName}: ${e.getMessage()}"
-            // Fail the stage explicitly
-            error("Failed to build and push ${serviceName}")
+            error("Failed to build and push ${serviceName}: ${e.getMessage()}")
         } finally {
-            // Optional: Clean up the built image locally to save space on the agent
-             // sh "docker rmi ${imageName}"
+            // Tùy chọn: Xóa image local để tiết kiệm dung lượng agent
+            // try { sh "docker rmi ${imageName}" } catch(any) { echo "Could not remove image ${imageName}"}
         }
     }
 }
+*/
