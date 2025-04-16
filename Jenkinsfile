@@ -101,17 +101,19 @@ pipeline {
                         services.each { service ->
                             // Xây dựng tên image cơ bản (như Maven đã build)
                             def baseImageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${service}"
-                            def latestTagImage = "${baseImageName}:latest" // Image Maven đã tạo ra
-                            def commitTagImage = "${baseImageName}:${env.COMMIT_ID}" // Image với tag mong muốn
+                            //def latestTagImage = "${baseImageName}:latest"
+                            def commitTagImage = "${baseImageName}:${env.COMMIT_ID}"
+                            def commitTag = env.COMMIT_ID
 
                             try {
                                 echo "Processing service: ${service}"
 
                                 echo "Tagging ${latestTagImage} as ${commitTagImage}"
-                                docker.image(latestTagImage).tag(commitTagImage)
+                                //docker.image(latestTagImage).tag(commitTagImage)
+                                docker.image(baseImageName).tag(commitTag)
 
-                                echo "Pushing ${commitTagImage}"
-                                docker.image(commitTagImage).push()
+                                //echo "Pushing ${commitTagImage}"
+                                //docker.image(commitTagImage).push()
 
                                 echo "Successfully tagged and pushed ${commitTagImage}"
 
