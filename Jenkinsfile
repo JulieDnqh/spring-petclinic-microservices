@@ -1,7 +1,7 @@
 // Jenkinsfile
 pipeline {
     //agent any
-    agent { label 'docker-agent' }
+    agent { label 'huong-agent' }
 
     environment {
         // Use the ID you created in Jenkins Credentials for Docker Hub
