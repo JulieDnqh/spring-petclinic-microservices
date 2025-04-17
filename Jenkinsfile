@@ -82,7 +82,7 @@ pipeline {
 
                         services.each { service ->
                             // Xây dựng tên image cơ bản (như Maven đã build)
-                            def baseImageName = docker.build("${env.DOCKER_REGISTRY}/spring-petclinic-${service}:${env.COMMIT_ID}")
+                            //def baseImageName = docker.build("${env.DOCKER_REGISTRY}/spring-petclinic-${service}:${env.COMMIT_ID}")
                             //def latestTagImage = "${baseImageName}:latest"
                             def commitTagImage = "${baseImageName}:${env.COMMIT_ID}"
                             def commitTag = env.COMMIT_ID
