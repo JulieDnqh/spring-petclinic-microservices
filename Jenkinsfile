@@ -2,9 +2,9 @@
 pipeline {
     agent any
 
-    tools{
-        jdk 'JDK21'
-    }
+    // tools{
+    //     jdk 'JDK21'
+    // }
 
     options {
         timeout(time: 90, unit: 'MINUTES')
@@ -54,8 +54,8 @@ pipeline {
                             def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests "+
                                              "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} "+
                                              "-Ddocker.image.tag.commit=${env.COMMIT_ID} "+
-                                             "-Dcontainer.build.extraagr=\"--push\" "+
-                                             "-Dcontainer.platform=\"linux/amd64\""
+                                             "-Dcontainer.platform=\"linux/amd64\" "
+                                             "-Dcontainer.build.extraagr=\"--push\""
 
                             echo "Executing Maven command on Windows to build images: ${mvnCommand}"
                             bat mvnCommand // Thực thi lệnh build
