@@ -45,53 +45,31 @@ pipeline {
             }
         }
 
-        stage('Build Images via Maven') {
-            steps {
-                script{
-                    docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
-                        try{
-                            echo "Checking for mvnw.cmd in current directory: ${pwd()}"
-                            bat 'dir mvnw.cmd' // Kiểm tra file tồn tại
+        // stage('Build Images via Maven') {
+        //     steps {
+        //         script{
+        //             docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
+        //                 try{
+        //                     echo "Checking for mvnw.cmd in current directory: ${pwd()}"
+        //                     bat 'dir mvnw.cmd' // Kiểm tra file tồn tại
 
-                            // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
-                            def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
-                                             "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " // Vẫn cần prefix để tên image đúng
+        //                     // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
+        //                     def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
+        //                                      "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " // Vẫn cần prefix để tên image đúng
 
-                            echo "Executing Maven command on Windows to build images: ${mvnCommand}"
-                            bat mvnCommand // Thực thi lệnh build
+        //                     echo "Executing Maven command on Windows to build images: ${mvnCommand}"
+        //                     bat mvnCommand // Thực thi lệnh build
 
-                            echo "Maven build completed successfully."
-                        }
-                        catch (e) {
-                            echo "Error building images via Maven: ${e.getMessage()}"
-                            error(message: "Failed to build images via Maven")
-                        }
-                    }
-                }
-                // // Chỉ cần login ở đây, không cần push từ Maven
-                // withDockerRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID) {
-                //     script {
-                //         try{
-                //             echo "Checking for mvnw.cmd in current directory: ${pwd()}"
-                //             bat 'dir mvnw.cmd' // Kiểm tra file tồn tại
-
-                //             // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
-                //             def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
-                //                              "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " // Vẫn cần prefix để tên image đúng
-
-                //             echo "Executing Maven command on Windows to build images: ${mvnCommand}"
-                //             bat mvnCommand // Thực thi lệnh build
-
-                //             echo "Maven build completed successfully."
-                //         }
-                //         catch (e) {
-                //             echo "Error building images via Maven: ${e.getMessage()}"
-                //             error(message: "Failed to build images via Maven")
-                //         }
-                //     }
-                // }
-            }
-        }
+        //                     echo "Maven build completed successfully."
+        //                 }
+        //                 catch (e) {
+        //                     echo "Error building images via Maven: ${e.getMessage()}"
+        //                     error(message: "Failed to build images via Maven")
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         // --- STAGE MỚI ĐỂ TAG VÀ PUSH ---
         stage('Tag and Push Images') {
@@ -104,7 +82,7 @@ pipeline {
 
                         services.each { service ->
                             // Xây dựng tên image cơ bản (như Maven đã build)
-                            def baseImageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${service}"
+                            def baseImageName = docker.build("${env.DOCKER_REGISTRY}/spring-petclinic-${service}:${env.COMMIT_ID}")
                             //def latestTagImage = "${baseImageName}:latest"
                             def commitTagImage = "${baseImageName}:${env.COMMIT_ID}"
                             def commitTag = env.COMMIT_ID
@@ -112,9 +90,12 @@ pipeline {
                             try {
                                 echo "Processing service: ${service}"
 
-                                echo "Tagging ${latestTagImage} as ${commitTagImage}"
+                                //baseImageName.build()
+                                def baseImageName = docker.build("${env.DOCKER_REGISTRY}/spring-petclinic-${service}:${env.COMMIT_ID}")
+
+                                //echo "Tagging ${latestTagImage} as ${commitTagImage}"
                                 //docker.image(latestTagImage).tag(commitTagImage)
-                                docker.image(baseImageName).tag(commitTag)
+                                //docker.image(baseImageName).tag(commitTag)
 
                                 //echo "Pushing ${commitTagImage}"
                                 //docker.image(commitTagImage).push()
