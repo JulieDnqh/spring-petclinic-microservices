@@ -84,8 +84,8 @@ pipeline {
                             // Xây dựng tên image cơ bản (như Maven đã build)
                             //def baseImageName = docker.build("${env.DOCKER_REGISTRY}/spring-petclinic-${service}:${env.COMMIT_ID}")
                             //def latestTagImage = "${baseImageName}:latest"
-                            def commitTagImage = "${baseImageName}:${env.COMMIT_ID}"
-                            def commitTag = env.COMMIT_ID
+                            //def commitTagImage = "${baseImageName}:${env.COMMIT_ID}"
+                            //def commitTag = env.COMMIT_ID
 
                             try {
                                 echo "Processing service: ${service}"
@@ -100,7 +100,8 @@ pipeline {
                                 //echo "Pushing ${commitTagImage}"
                                 //docker.image(commitTagImage).push()
 
-                                echo "Successfully tagged and pushed ${commitTagImage}"
+                                //echo "Successfully tagged and pushed ${commitTagImage}"
+                                echo "Successfully tagged and pushed"
 
                             } catch (e) {
                                 echo "Error tagging/pushing image for ${service}: ${e.getMessage()}"
