@@ -45,31 +45,31 @@ pipeline {
             }
         }
 
-        // stage('Build Images via Maven') {
-        //     steps {
-        //         script{
-        //             docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
-        //                 try{
-        //                     echo "Checking for mvnw.cmd in current directory: ${pwd()}"
-        //                     bat 'dir mvnw.cmd' // Kiểm tra file tồn tại
+        stage('Build Images via Maven') {
+            steps {
+                script{
+                    docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
+                        try{
+                            echo "Checking for mvnw.cmd in current directory: ${pwd()}"
+                            bat 'dir mvnw.cmd' // Kiểm tra file tồn tại
 
-        //                     // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
-        //                     def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
-        //                                      "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " // Vẫn cần prefix để tên image đúng
+                            // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
+                            def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests " +
+                                             "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " // Vẫn cần prefix để tên image đúng
 
-        //                     echo "Executing Maven command on Windows to build images: ${mvnCommand}"
-        //                     bat mvnCommand // Thực thi lệnh build
+                            echo "Executing Maven command on Windows to build images: ${mvnCommand}"
+                            bat mvnCommand // Thực thi lệnh build
 
-        //                     echo "Maven build completed successfully."
-        //                 }
-        //                 catch (e) {
-        //                     echo "Error building images via Maven: ${e.getMessage()}"
-        //                     error(message: "Failed to build images via Maven")
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+                            echo "Maven build completed successfully."
+                        }
+                        catch (e) {
+                            echo "Error building images via Maven: ${e.getMessage()}"
+                            error(message: "Failed to build images via Maven")
+                        }
+                    }
+                }
+            }
+        }
 
         // --- STAGE MỚI ĐỂ TAG VÀ PUSH ---
         stage('Tag and Push Images') {
