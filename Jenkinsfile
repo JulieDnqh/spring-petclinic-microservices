@@ -54,7 +54,8 @@ pipeline {
                             def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests "+
                                              "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} "+
                                              "-Ddocker.image.tag.commit=${env.COMMIT_ID} "+
-                                             "-Dcontainer.build.extraagr=\"--push\""
+                                             "-Dcontainer.build.extraagr=\"--push\" "+
+                                             "-Dcontainer.platform=\"linux/amd64\""
 
                             echo "Executing Maven command on Windows to build images: ${mvnCommand}"
                             bat mvnCommand // Thực thi lệnh build
