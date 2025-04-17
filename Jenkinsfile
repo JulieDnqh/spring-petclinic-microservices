@@ -54,8 +54,9 @@ pipeline {
                             bat 'dir mvnw.cmd' // Kiểm tra file tồn tại
 
                             // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
-                            def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests "
-                                             //"-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " // Vẫn cần prefix để tên image đúng
+                            def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests "+
+                                             "-Ddocker.image.tag=${env.COMMIT_ID} "+
+                                             "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " // Vẫn cần prefix để tên image đúng
 
                             echo "Executing Maven command on Windows to build images: ${mvnCommand}"
                             bat mvnCommand // Thực thi lệnh build
