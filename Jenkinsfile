@@ -33,8 +33,7 @@ pipeline {
                     if (env.GIT_COMMIT) {
                         env.COMMIT_ID = env.GIT_COMMIT
                     } else {
-                        //env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     }
                     // In thông tin
                     env.BRANCH_NAME = env.BRANCH_NAME
@@ -51,15 +50,20 @@ pipeline {
                 script{
                     docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
                         try{
-                            // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
+                            
+                            def commit_id = env.COMMIT_ID
+
+                            if (env.BRANCH_NAME == 'main') {
+                                commit_id = 'latest'
+                            }
+
                             def mvnCommand = "./mvnw.cmd clean install -P buildDocker -DskipTests "+
                                              "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} "+
-                                             "-Ddocker.image.tag.commit=${env.COMMIT_ID} "+
+                                             "-Ddocker.image.tag.commit=${commit_id} "+
                                              "-Dcontainer.build.extraarg=\"--push\""
 
                             echo "Executing Maven command on Windows to build images: ${mvnCommand}"
-                            //sh mvnCommand // Thực thi lệnh build
-                            bat mvnCommand
+                            sh mvnCommand // Thực thi lệnh build
 
                             echo "Maven build completed successfully."
                         }
