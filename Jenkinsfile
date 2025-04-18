@@ -14,7 +14,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
-        DOCKER_REGISTRY        = '22127475/devops-project02'
+        DOCKER_REGISTRY        = '22127475'
     }
 
     stages {
