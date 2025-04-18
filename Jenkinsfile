@@ -1,10 +1,10 @@
 // Jenkinsfile
 pipeline {
     agent any
-
-    tools{
-        jdk 'JDK21'
-    }
+    // {
+    //     label '!built-in'
+    // }
+    
 
     options {
         timeout(time: 90, unit: 'MINUTES')
@@ -13,8 +13,8 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
-        DOCKER_REGISTRY        = '22127146'
+        DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
+        DOCKER_REGISTRY        = '22127475/devops-project02'
     }
 
     stages {
@@ -31,9 +31,9 @@ pipeline {
                 script {
                     // Lấy commit ID
                     if (env.GIT_COMMIT) {
-                        env.COMMIT_ID = env.GIT_COMMIT.take(7)
+                        env.COMMIT_ID = env.GIT_COMMIT
                     } else {
-                        env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     }
                     // In thông tin
                     env.BRANCH_NAME = env.BRANCH_NAME
@@ -51,13 +51,13 @@ pipeline {
                     docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
                         try{
                             // Xây dựng lệnh Maven - **BỎ --push**, chỉ build và load vào local Docker
-                            def mvnCommand = ".\\mvnw.cmd clean install -P buildDocker -DskipTests "+
+                            def mvnCommand = "./mvnw.cmd clean install -P buildDocker -DskipTests "+
                                              "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} "+
                                              "-Ddocker.image.tag.commit=${env.COMMIT_ID} "+
                                              "-Dcontainer.build.extraarg=\"--push\""
 
                             echo "Executing Maven command on Windows to build images: ${mvnCommand}"
-                            bat mvnCommand // Thực thi lệnh build
+                            sh mvnCommand // Thực thi lệnh build
 
                             echo "Maven build completed successfully."
                         }
