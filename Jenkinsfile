@@ -33,7 +33,8 @@ pipeline {
                     if (env.GIT_COMMIT) {
                         env.COMMIT_ID = env.GIT_COMMIT
                     } else {
-                        env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        //env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        env.COMMIT_ID = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     }
                     // In thông tin
                     env.BRANCH_NAME = env.BRANCH_NAME
@@ -63,7 +64,8 @@ pipeline {
                                              "-Dcontainer.build.extraarg=\"--push\""
 
                             echo "Executing Maven command on Windows to build images: ${mvnCommand}"
-                            sh mvnCommand // Thực thi lệnh build
+                            //sh mvnCommand // Thực thi lệnh build
+                            bat mvnCommand
 
                             echo "Maven build completed successfully."
                         }
