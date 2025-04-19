@@ -29,7 +29,9 @@ pipeline {
                     
                     tags = []
                     for (service in services) {
-                        def tag = service.branch == 'main' ? 'latest' : bat(script: "git ls-remote ${REPO_URL} refs/heads/${service.branch} | cut -f1", returnStdout: true).trim()
+                        def tag = service.branch == 'main' ? 'latest' : bat(script: '''
+    for /f "tokens=1" %%A in ('git ls-remote https://github.com/22127475/spring-petclinic-microservices.git refs/heads/dev_vets_service') do echo %%A
+''', returnStdout: true).trim()
                         tags.add(tag)
                         echo "tags for ${service.name}: ${tag}"
                     }
