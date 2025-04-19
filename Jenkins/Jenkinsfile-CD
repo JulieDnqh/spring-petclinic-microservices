@@ -35,11 +35,12 @@ pipeline {
                         } else {
                             def branchRef = "refs/heads/${service.branch}"
                             tag = bat(
-                                script: """
-                                    for /f "tokens=1" %%A in ('git ls-remote ${REPO_URL} ${branchRef}') do @echo %%A
-                                """,
-                                returnStdout: true
-                            ).trim()
+    script: """
+        @echo off
+        for /f "tokens=1" %%A in ('git ls-remote ${REPO_URL} refs/heads/${service.branch}') do @echo %%A
+    """,
+    returnStdout: true
+).trim()
                         }
                         tags.add(tag)
                         echo "Tag for ${service.name} (${service.branch}): ${tag}"
