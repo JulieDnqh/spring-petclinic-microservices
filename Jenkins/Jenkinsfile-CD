@@ -1,12 +1,18 @@
 pipeline {
     agent any
     
-
     parameters {
+        string(name: 'config-server', defaultValue: 'main')
+        string(name: 'discovery-service', defaultValue: 'main')
+        string(name: 'api-gateway', defaultValue: 'main')
         string(name: 'customers-service', defaultValue: 'main')
         string(name: 'genai-service', defaultValue: 'main')
         string(name: 'vets-service', defaultValue: 'main')
         string(name: 'visits-service', defaultValue: 'main')
+        string(name: 'admin-server', defaultValue: 'main')  
+
+//      string(name: 'zipkin', defaultValue: 'main')
+
     }
 
     environment {
@@ -18,13 +24,20 @@ pipeline {
         stage('Deploy services') {
             steps {
                 script {
-                    // Dựng danh sách dịch vụ với các nhánh của từng dịch vụ
+                    
                     services = [
+                        [name: 'config-server', branch: params['config-server']],
+                        [name: 'discovery-service', branch: params['discovery-service']],
+
+                        [name: 'api-gateway', branch: params['api-gateway']]
                         [name: 'customers-service', branch: params['customers-service']],
                         [name: 'visits-service', branch: params['visits-service']], 
                         [name: 'vets-service', branch: params['vets-service']],
-                        [name: 'genai-service', branch: params['genai-service']]
+                        [name: 'genai-service', branch: params['genai-service']],
+//                      [name: 'zipkin', branch: params['zipkin']],                        
+                        [name: 'admin-server', branch: params['admin-server']],                         
                     ]
+
 
                     
                     tags = []
