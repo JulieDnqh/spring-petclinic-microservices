@@ -27,7 +27,7 @@ pipeline {
                     ]
 
                     // Tạo danh sách tags tương ứng với các dịch vụ
-                    tags = []
+                    def tags = []
                     for (service in services) {
                         def tag = service.branch == 'main' ? 'latest' : bat(script: "git ls-remote ${REPO_URL} refs/heads/${service.branch} | cut -f1", returnStdout: true).trim()
                         tags.add(tag)
@@ -47,7 +47,7 @@ pipeline {
                         
                         // Pull image với tên dịch vụ và tag tương ứng
                         bat "docker pull ${IMAGE_NAME}-${service.name}:${tag}"
-                        echo "pulled image: ${IMAGE_NAME}-${service.name}:${tag}"
+                        echo "docker pull ${IMAGE_NAME}-${service.name}:${tag}"
                     }
                 }
             }
