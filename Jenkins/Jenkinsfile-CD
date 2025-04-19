@@ -3,10 +3,10 @@ pipeline {
     
 
     parameters {
-        string(name: 'customers-services', defaultValue: 'main')
-        string(name: 'genai-services', defaultValue: 'main')
-        string(name: 'vets-services', defaultValue: 'main')
-        string(name: 'visits-services', defaultValue: 'main')
+        string(name: 'customers-service', defaultValue: 'main')
+        string(name: 'genai-service', defaultValue: 'main')
+        string(name: 'vets-service', defaultValue: 'main')
+        string(name: 'visits-service', defaultValue: 'main')
     }
 
     environment {
@@ -20,10 +20,10 @@ pipeline {
                 script {
                     // Dựng danh sách dịch vụ với các nhánh của từng dịch vụ
                     services = [
-                        [name: 'customers-services', branch: params['customers-services']],
-                        [name: 'visits-services', branch: params['visits-services']], 
-                        [name: 'vets-services', branch: params['vets-services']],
-                        [name: 'genai-services', branch: params['genai-services']]
+                        [name: 'customers-service', branch: params['customers-service']],
+                        [name: 'visits-service', branch: params['visits-service']], 
+                        [name: 'vets-service', branch: params['vets-service']],
+                        [name: 'genai-service', branch: params['genai-service']]
                     ]
 
                     
