@@ -46,7 +46,7 @@ pipeline {
                         def tag = tags[i]
                         
                         // Pull image với tên dịch vụ và tag tương ứng
-                        bat "docker image pull ${IMAGE_NAME}-${service.name}:${tag}"
+                        bat "docker pull ${IMAGE_NAME}-${service.name}:${tag}"
                         echo "pulled image: ${IMAGE_NAME}-${service.name}:${tag}"
                     }
                 }
