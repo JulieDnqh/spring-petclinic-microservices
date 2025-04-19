@@ -47,7 +47,7 @@ pipeline {
                         
                         // Pull image với tên dịch vụ và tag tương ứng
                         bat "docker pull ${IMAGE_NAME}-${service.name}:${tag}"
-                        echo "docker pull ${IMAGE_NAME}-${service.name}:${tag}"
+                        echo "pulled image: ${IMAGE_NAME}-${service.name}:${tag}"
                     }
                 }
             }
