@@ -11,8 +11,8 @@ pipeline {
     }
 
     environment {
-        REPO_URL = 'https://github.com/22127475/HCMUS-DevOps-Project-02.git'
-        IMAGE_NAME = '22127475/devops-project02'
+        REPO_URL = 'https://github.com/22127475/spring-petclinic-microservices.git'
+        IMAGE_NAME = '22127475/spring-petclinic'
     }
 
     stages {
