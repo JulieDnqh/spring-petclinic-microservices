@@ -1,6 +1,5 @@
 pipeline {
     agent any
-    
 
     parameters {
         string(name: 'customers-services', defaultValue: 'main')
@@ -14,11 +13,14 @@ pipeline {
         IMAGE_NAME = '22127475/spring-petclinic'
     }
 
+    // ✅ Define shared variables
+    def services = []
+    def tags = []
+
     stages {
         stage('Deploy services') {
             steps {
                 script {
-                    // Dựng danh sách dịch vụ với các nhánh của từng dịch vụ
                     services = [
                         [name: 'customers-services', branch: params['customers-services']],
                         [name: 'visits-services', branch: params['visits-services']], 
@@ -26,10 +28,11 @@ pipeline {
                         [name: 'genai-services', branch: params['genai-services']]
                     ]
 
-                    // Tạo danh sách tags tương ứng với các dịch vụ
-                    def tags = []
+                    tags = []
                     for (service in services) {
-                        def tag = service.branch == 'main' ? 'latest' : bat(script: "git ls-remote ${REPO_URL} refs/heads/${service.branch} | cut -f1", returnStdout: true).trim()
+                        def tag = service.branch == 'main'
+                            ? 'latest'
+                            : bat(script: "git ls-remote ${REPO_URL} refs/heads/${service.branch} | cut -f1", returnStdout: true).trim()
                         tags.add(tag)
                         echo "tags for ${service.name}: ${tag}"
                     }
@@ -40,12 +43,9 @@ pipeline {
         stage('Pull images') {
             steps {
                 script {
-                    // Duyệt qua từng dịch vụ và tag tương ứng
                     for (int i = 0; i < services.size(); i++) {
                         def service = services[i]
                         def tag = tags[i]
-                        
-                        // Pull image với tên dịch vụ và tag tương ứng
                         bat "docker pull ${IMAGE_NAME}-${service.name}:${tag}"
                         echo "pulled image: ${IMAGE_NAME}-${service.name}:${tag}"
                     }
