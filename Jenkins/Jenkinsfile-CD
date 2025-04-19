@@ -1,0 +1,57 @@
+pipeline {
+    agent {
+        label any
+    }
+
+    parameters {
+        string(name: 'customers-services', defaultValue: 'main')
+        string(name: 'genai-services', defaultValue: 'main')
+        string(name: 'vets-services', defaultValue: 'main')
+        string(name: 'visits-services', defaultValue: 'main')
+    }
+
+    environment {
+        REPO_URL = 'https://github.com/22127475/HCMUS-DevOps-Project-02.git'
+        IMAGE_NAME = '22127475/devops-project02'
+    }
+
+    stages {
+        stage('Deploy services') {
+            steps {
+                script {
+                    // Dựng danh sách dịch vụ với các nhánh của từng dịch vụ
+                    services = [
+                        [name: 'customers-services', branch: params['customers-services']],
+                        [name: 'visits-services', branch: params['visits-services']], 
+                        [name: 'vets-services', branch: params['vets-services']],
+                        [name: 'genai-services', branch: params['genai-services']]
+                    ]
+
+                    // Tạo danh sách tags tương ứng với các dịch vụ
+                    tags = []
+                    for (service in services) {
+                        def tag = service.branch == 'main' ? 'latest' : bat(script: "git ls-remote ${REPO_URL} refs/heads/${service.branch} | cut -f1", returnStdout: true).trim()
+                        tags.add(tag)
+                        echo "tags for ${service.name}: ${tag}"
+                    }
+                }
+            }
+        }
+
+        stage('Pull images') {
+            steps {
+                script {
+                    // Duyệt qua từng dịch vụ và tag tương ứng
+                    for (int i = 0; i < services.size(); i++) {
+                        def service = services[i]
+                        def tag = tags[i]
+                        
+                        // Pull image với tên dịch vụ và tag tương ứng
+                        bat "docker image pull ${IMAGE_NAME}-${service.name}:${tag}"
+                        echo "pulled image: ${IMAGE_NAME}-${service.name}:${tag}"
+                    }
+                }
+            }
+        }        
+    }
+}
