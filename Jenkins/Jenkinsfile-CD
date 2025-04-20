@@ -106,7 +106,7 @@ pipeline {
 
 
         def now = new Date().format("HHmmssSSSddMMyyyy")
-        namespace = "developer_build- + ${now}"
+        namespace = "developer_build-${now}"
     }
 
     stages {
