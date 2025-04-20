@@ -1,4 +1,4 @@
-pipeline {
+// pipeline {
 //     agent any
     
 //     parameters {
@@ -79,7 +79,7 @@ pipeline {
 //     }
 // }
 
-pipeline {
+// pipeline {
 //     agent any
     
 //     parameters {
