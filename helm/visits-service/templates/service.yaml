@@ -7,6 +7,6 @@ spec:
   selector:
     app: "{ .Release.Name }"
   ports:
-    - port: { .Values.service.port }
-      targetPort: { .Values.service.port }
-      nodePort: { .Values.service.nodePort }
+    - port: { .Values.service.port | int }
+      targetPort: { .Values.service.port | int }
+      nodePort: { .Values.service.nodePort | int }
