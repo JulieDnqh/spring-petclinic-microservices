@@ -154,18 +154,20 @@ pipeline {
         stage('Deploy with helm') {
             steps {
                 script {
-                    for (int i =0; i < services.size(); ++i) {
-                        def service = services[i]
-                        def tag = tags[i]
-
-                        bat """
-                            helm upgrade --install ${service.name}-${namespace} ${HELM_DIR}/${service.name} ^
-                                --namespace ${namespace} --create-namespace ^
-                                --set image.repository=${IMAGE_NAME}-${service.name} ^
-                                --set image.tag=${tag} ^
-                                --set service.port=${service.port} ^
-                                --set service.nodePort=${service.nodePort}
-                        """
+                    withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
+                        for (int i =0; i < services.size(); ++i) {
+                            def service = services[i]
+                            def tag = tags[i]
+    
+                            bat """
+                                helm upgrade --install ${service.name}-${namespace} ${HELM_DIR}/${service.name} ^
+                                    --namespace ${namespace} --create-namespace ^
+                                    --set image.repository=${IMAGE_NAME}-${service.name} ^
+                                    --set image.tag=${tag} ^
+                                    --set service.port=${service.port} ^
+                                    --set service.nodePort=${service.nodePort}
+                            """
+                        }
                     }
                 }
             }
