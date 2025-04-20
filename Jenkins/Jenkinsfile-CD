@@ -105,8 +105,8 @@ pipeline {
         DOMAIN = 'myproject.local'
 
 
-        def now = new Date().format("HHmmssSSSddMMyyyy")
-        namespace = "developer_build-${now}"
+        
+        namespace = "${env.BUILD_ID}"
     }
 
     stages {
