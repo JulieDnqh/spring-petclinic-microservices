@@ -1,4 +1,86 @@
 pipeline {
+//     agent any
+    
+//     parameters {
+//         string(name: 'config-server', defaultValue: 'main')
+//         string(name: 'discovery-service', defaultValue: 'main')
+//         string(name: 'api-gateway', defaultValue: 'main')
+//         string(name: 'customers-service', defaultValue: 'main')
+//         string(name: 'genai-service', defaultValue: 'main')
+//         string(name: 'vets-service', defaultValue: 'main')
+//         string(name: 'visits-service', defaultValue: 'main')
+//         string(name: 'admin-server', defaultValue: 'main')  
+
+// //      string(name: 'zipkin', defaultValue: 'main')
+
+//     }
+
+//     environment {
+//         REPO_URL = 'https://github.com/22127475/spring-petclinic-microservices.git'
+//         IMAGE_NAME = '22127475/spring-petclinic'
+//     }
+
+//     stages {
+//         stage('Deploy services') {
+//             steps {
+//                 script {
+                    
+//                     services = [
+//                         [name: 'config-server', branch: params['config-server'], nodePort: 30001, port: 8888],
+//                         [name: 'discovery-service', branch: params['discovery-service'], nodePort: 30002, port: 8761 ],
+
+//                         [name: 'api-gateway', branch: params['api-gateway'], nodePort: 30000, port: 8085]
+//                         [name: 'customers-service', branch: params['customers-service'], nodePort: 30003, port: 8081],
+//                         [name: 'visits-service', branch: params['visits-service'], nodePort: 30004, port: 8882], 
+//                         [name: 'vets-service', branch: params['vets-service'], nodePort: 30005, port: 8883],
+//                         [name: 'genai-service', branch: params['genai-service'], nodePort: 30006, port: 8884],
+// //                      [name: 'zipkin', branch: params['zipkin'], nodePort: 30007, port: 9411],                        
+//                         [name: 'admin-server', branch: params['admin-server'], nodePort: 30008, port: 9090],                         
+//                     ]
+
+
+                    
+//                     tags = []
+//                     for (service in services) {
+//                         def tag
+//                         if (service.branch == 'main') {
+//                             tag = 'latest'
+//                         } 
+//                         else {
+//                             def branchRef = "refs/heads/${service.branch}"
+//                             tag = bat(
+//                                 script: """
+//                                         @echo off
+//                                         for /f "tokens=1" %%A in ('git ls-remote ${REPO_URL} refs/heads/${service.branch}') do @echo %%A
+//                                     """, returnStdout: true 
+//                                 ).trim()
+//                         }
+//                         tags.add(tag)
+//                         echo "Tag for ${service.name} (${service.branch}): ${tag}"
+//                     }
+//                 }
+//             }
+//         }
+
+//         stage('Pull images') {
+//             steps {
+//                 script {
+                    
+//                     for (int i = 0; i < services.size(); i++) {
+//                         def service = services[i]
+//                         def tag = tags[i]
+                        
+//                         bat "docker image pull ${IMAGE_NAME}-${service.name}:${tag}"
+//                         echo "pulled image: ${IMAGE_NAME}-${service.name}:${tag}"
+//                     }
+//                 }
+//             }
+//         }        
+//     }
+// }
+
+
+pipeline {
     agent any
     
     parameters {
@@ -62,19 +144,29 @@ pipeline {
             }
         }
 
-        stage('Pull images') {
+        stage('Deploy with helm') {
             steps {
                 script {
-                    
-                    for (int i = 0; i < services.size(); i++) {
+                    def now = new Date().format("HHmmssSSSddMMyyyy")
+                    def namespace = "developer_build-" + now
+                    for (int i =0; i < services.size(); ++i) {
                         def service = services[i]
                         def tag = tags[i]
-                        
-                        bat "docker image pull ${IMAGE_NAME}-${service.name}:${tag}"
-                        echo "pulled image: ${IMAGE_NAME}-${service.name}:${tag}"
+
+                        bat """
+                            helm upgrade --install ${service.name}-${namespace} ./helm/${service.name} ^
+                                --namespace ${namespace} --create-namespace ^
+                                --set image.repository=${IMAGE_NAME}-${service.name} ^
+                                --set image.tag=${tag} ^
+                                --set service.port=${service.port} ^
+                                --set service.nodePort=${service.nodePort}
+                        """
                     }
                 }
             }
-        }        
+        }
+
+        
     }
 }
+
