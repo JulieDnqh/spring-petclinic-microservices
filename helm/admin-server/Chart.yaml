@@ -1,0 +1,4 @@
+apiVersion: v2
+name: admin-server
+description: A Helm chart for Kubernetes deployment of admin-server
+version: 0.1.0
