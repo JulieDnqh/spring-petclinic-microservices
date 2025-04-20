@@ -18,7 +18,7 @@ pipeline {
     environment {
         REPO_URL = 'https://github.com/22127475/spring-petclinic-microservices.git'
         IMAGE_NAME = '22127475/spring-petclinic'
-        HELM_DIR = '../helm'
+        HELM_DIR = 'helm'
         DOMAIN = 'myproject.local'
 
 
