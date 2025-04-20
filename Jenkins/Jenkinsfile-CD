@@ -112,8 +112,11 @@ pipeline {
     stages {
         stage('Deploy services') {
             steps {
+checkout scm
+            }
+            steps {
                 script {
-                    checkout scm
+                    
                     services = [
                         [name: 'config-server', branch: params['config-server'], nodePort: 30001, port: 8888],
                         [name: 'discovery-service', branch: params['discovery-service'], nodePort: 30002, port: 8761 ],
