@@ -29,8 +29,8 @@ pipeline {
     stages {
         stage('SCM checkout') {
             steps {
-            checkout scm
-                        }
+                checkout scm
+            }
         }
         stage('Deploy services') {
             steps {
