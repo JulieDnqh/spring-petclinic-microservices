@@ -1,4 +1,0 @@
-apiVersion: v2
-name: customers-service
-description: A Helm chart for Kubernetes deployment of customers-service
-version: 0.1.0

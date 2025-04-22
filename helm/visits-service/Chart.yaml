@@ -1,4 +1,0 @@
-apiVersion: v2
-name: visits-service
-description: A Helm chart for Kubernetes deployment of visits-service
-version: 0.1.0

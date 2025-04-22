@@ -1,7 +1,0 @@
-image:
-  repository: 22127475/spring-petclinic-admin-server
-  tag: latest
-
-service:
-  port: 8080
-  nodePort: 30000

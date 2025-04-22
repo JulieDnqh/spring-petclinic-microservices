@@ -1,4 +1,0 @@
-apiVersion: v2
-name: discovery-service
-description: A Helm chart for Kubernetes deployment of discovery-service
-version: 0.1.0
