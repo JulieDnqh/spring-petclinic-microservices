@@ -82,7 +82,7 @@ pipeline {
 
                     }
 
-                    type values.generated.yaml
+                    bat "type values.generated.yaml"
                 }
             }
         }
