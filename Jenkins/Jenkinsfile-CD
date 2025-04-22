@@ -44,6 +44,10 @@ pipeline {
 
                     def yamlLines = [
                         "namespace: ${namespace}",
+
+                        "ingress:",
+                        "  enabled: true",
+                        "  host: ${DOMAIN}",
                         "services:"
                     ]
                     // tags = [] 
@@ -73,14 +77,12 @@ pipeline {
                         yamlLines << "      repository: ${IMAGE_NAME}-${service.name}"
                         yamlLines << "      tag: ${tag}"
                         yamlLines << "    port: ${service.port}"
-                        yamlLines << "ingress:"
-                        yamlLines << "  enabled: true"
-                        yamlLines << "  host: ${DOMAIN}"
 
                         writeFile file: 'values.generated.yaml', text: yamlLines.join('\n')
                         
 
                     }
+
 
                     bat "type values.generated.yaml"
                 }
