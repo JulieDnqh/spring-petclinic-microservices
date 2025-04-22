@@ -109,20 +109,22 @@ pipeline {
 
         stage('Show access link') {
             steps {
-                script {
-                    def nodePort = bat(
-                        script: 'kubectl get svc api-gateway -n test -o jsonpath="{.spec.ports[0].nodePort}"',
-                        returnStdout: true
-                    ).trim()
-                    
-                    
-                    def lines = nodePort.split('\r?\n')
-                    def cleanNodePort = lines[-1] 
-
-                    echo "Access link: ${DOMAIN}"
-                    echo "Namespace: ${namespace}"
-                    echo "Delete link: "
-                    
+                withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
+                    script {
+                        def nodePort = bat(
+                            script: 'kubectl get svc api-gateway -n test -o jsonpath="{.spec.ports[0].nodePort}"',
+                            returnStdout: true
+                        ).trim()
+                        
+                        
+                        def lines = nodePort.split('\r?\n')
+                        def cleanNodePort = lines[-1] 
+    
+                        echo "Access link: ${DOMAIN}"
+                        echo "Namespace: ${namespace}"
+                        echo "Delete link: "
+                        
+                    }
                 }
             }
         }
