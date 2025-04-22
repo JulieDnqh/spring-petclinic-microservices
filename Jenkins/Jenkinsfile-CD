@@ -122,7 +122,7 @@ pipeline {
     
                         echo "Access link: ${DOMAIN}:${cleanNodePort}"
                         echo "Namespace: ${namespace}"
-                        echo "Delete link: localhost:8080/job/delete_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}"
+                        echo "Delete link: localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}"
                         
                     }
                 }
