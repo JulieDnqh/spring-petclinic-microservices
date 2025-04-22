@@ -122,7 +122,7 @@ pipeline {
     
                         echo "Access link: ${DOMAIN}"
                         echo "Namespace: ${namespace}"
-                        echo "Delete link: "
+                        echo "Delete link: localhost:8080/job/delete_job/buildWithParameters?token=delete_job&chart_name=petclinic-${namespace}&namepsace_name=${namespace}"
                         
                     }
                 }
