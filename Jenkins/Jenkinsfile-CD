@@ -121,7 +121,7 @@ echo "node_port: ${node_Port}"
                         def lines = node_Port.split('\r?\n')
 echo "Lines: ${lines}"
 
-                        def cleanNodePort = lines[-1] 
+                        def cleanNodePort = lines[lines.size() - 1] 
 echo "cleanNodePort: ${cleanNodePort}"    
                         echo "Access link: ${DOMAIN}:${cleanNodePort}"
                         echo "Namespace: ${namespace}"
@@ -131,7 +131,7 @@ echo "cleanNodePort: ${cleanNodePort}"
                         
                         
 
-                        currentBuild.description = """[Access link]("http://${DOMAIN}:${cleanNodePort}")  
+                        currentBuild.description = """[Access link](http://${DOMAIN}:${cleanNodePort})  
 [Delete link](http://localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}) (delete namespace immediately when click)  
                             """
 
