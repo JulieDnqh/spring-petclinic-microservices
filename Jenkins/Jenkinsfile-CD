@@ -78,9 +78,11 @@ pipeline {
                         yamlLines << "  host: ${DOMAIN}"
 
                         writeFile file: 'values.generated.yaml', text: yamlLines.join('\n')
-
+                        
 
                     }
+
+                    type values.generated.yaml
                 }
             }
         }
