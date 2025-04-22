@@ -1,0 +1,55 @@
+namespace: default
+
+services:
+  config-server:
+    enabled: true
+    image:
+      repository: 22127475/spring-petclinic-config-server
+      tag: latest
+    port: 8888
+  discovery-server:
+    enabled: true
+    image:
+      repository: 22127475/spring-petclinic-discovery-server
+      tag: latest
+    port: 8761
+  customers-service:
+    enabled: true
+    image:
+      repository: 22127475/spring-petclinic-customers-service
+      tag: latest
+    port: 8081
+  visits-service:
+    enabled: true
+    image:
+      repository: 22127475/spring-petclinic-visits-service
+      tag: latest
+    port: 8082
+  vets-service:
+    enabled: true
+    image:
+      repository: 22127475/spring-petclinic-vets-service
+      tag: latest
+    port: 8083
+  genai-service:
+    enabled: false
+    image:
+      repository: 22127475/spring-petclinic-genai-service
+      tag: latest
+    port: 8084
+  api-gateway:
+    enabled: true
+    image:
+      repository: 22127475/spring-petclinic-api-gateway
+      tag: latest
+    port: 8080
+  admin-server:
+    enabled: true
+    image:
+      repository: 22127475/spring-petclinic-admin-server
+      tag: latest
+    port: 9090
+
+ingress:
+  enabled: true
+  host: example.com

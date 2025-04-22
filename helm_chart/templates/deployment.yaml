@@ -1,0 +1,31 @@
+{{- range $svc, $config := .Values.services }}
+{{- if $config.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $svc }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $svc }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $svc }}
+  template:
+    metadata:
+      labels:
+        app: {{ $svc }}
+    spec:
+      containers:
+        - name: {{ $svc }}
+          image: {{ $config.image.repository }}:{{ $config.image.tag }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ $config.port }}
+          env:
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: {{ $svc }}
+---
+{{- end }}
+{{- end }}

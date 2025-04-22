@@ -1,0 +1,20 @@
+{{- range $svc, $config := .Values.services }}
+{{- if $config.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $svc }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $svc }}
+spec:
+  selector:
+    app: {{ $svc }}
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: {{ $config.port }}
+      targetPort: {{ $config.port }}
+---
+{{- end }}
+{{- end }}
