@@ -128,10 +128,9 @@ pipeline {
                         
                         
 
-                        currentBuild.description = """
-                            [Access link](${DOMAIN}:${cleanNodePort}): ${DOMAIN}:${cleanNodePort}  
-                            Namespace: ${namespace}  
-                            [Delete link](http://localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}) (will delete immediately)  
+                        currentBuild.description = """[Access link](${DOMAIN}:${cleanNodePort})  
+Namespace: ${namespace}  
+[Delete link](http://localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}) (delete namespace immediately when click)  
                             """
 
                     }
