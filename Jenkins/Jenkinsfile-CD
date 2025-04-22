@@ -93,17 +93,14 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
-                        for (int i =0; i < services.size(); ++i) {
-                            def service = services[i]
-                            // def tag = tags[i]/
-    
+                    
                             bat """
-                                helm upgrade --install petclinic-${namespace} ${HELM_DIR} --namespace ${namespace} --create-namespace -f values.generated.yaml
+                                helm upgrade --install petclinic-${namespace} ${HELM_DIR} --namespace ${namespace} --create-namespace --values=values.generated.yaml
                             """
-                        }
-                    bat """
-kubectl patch svc api-gateway -n ${namespace} -p "{\\"spec\\": {\\"type\\": \\"NodePort\\"}}"
-"""
+                        
+                            bat """
+                                kubectl patch svc api-gateway -n ${namespace} -p "{\\"spec\\": {\\"type\\": \\"NodePort\\"}}"
+                            """
                     }
                 }
             }
