@@ -24,11 +24,6 @@ pipeline {
     }
 
     stages {
-        stage('SCM checkout') {
-            steps {
-                checkout scm
-            }
-        }
         stage('Deploy services') {
             steps {
                 script {
@@ -51,7 +46,7 @@ pipeline {
                         "namespace: ${namespace}",
                         "services:"
                     ]
-                    tags = [] 
+                    // tags = [] 
                     for (service in services) {
                         def tag
                         if (service.branch == 'main') {
@@ -66,7 +61,7 @@ pipeline {
                                     """, returnStdout: true 
                                 ).trim()
                         }
-                        tags.add(tag)
+                        // tags.add(tag)
                         echo "Tag for ${service.name} (${service.branch}): ${tag}"
 
                         // write new values.yaml
@@ -96,7 +91,7 @@ pipeline {
                     withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
                         for (int i =0; i < services.size(); ++i) {
                             def service = services[i]
-                            def tag = tags[i]
+                            // def tag = tags[i]/
     
                             bat """
                                 helm upgrade --install petclinic-${namespace} ${HELM_DIR} --namespace ${namespace} --create-namespace -f values.generated.yaml
