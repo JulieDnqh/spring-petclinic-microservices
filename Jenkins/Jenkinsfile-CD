@@ -99,9 +99,7 @@ pipeline {
                             def tag = tags[i]
     
                             bat """
-                                helm upgrade --install petclinic-${namespace} ${HELM_DIR} ^ 
-                                --namespace ${namespace} --create-namespace ^
-                                -f values.generated.yaml
+                                helm upgrade --install petclinic-${namespace} ${HELM_DIR} --namespace ${namespace} --create-namespace -f values.generated.yaml
                             """
                         }
                     }
