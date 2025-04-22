@@ -52,7 +52,7 @@ pipeline {
                         "namespace: ${namespace}",
                         "services:"
                     ]
-                    tags = []
+                    
                     for (service in services) {
                         def tag
                         if (service.branch == 'main') {
@@ -67,18 +67,18 @@ pipeline {
                                     """, returnStdout: true 
                                 ).trim()
                         }
-                        tags.add(tag)
+                        
                         echo "Tag for ${service.name} (${service.branch}): ${tag}"
 
                         // write new values.yaml
-                        def svc = services[i]
-                        def tag = tags[i]
-                        yamlLines << "  ${svc.name}:"
+                        
+                        
+                        yamlLines << "  ${service.name}:"
                         yamlLines << "    enabled: true"
                         yamlLines << "    image:"
-                        yamlLines << "      repository: ${IMAGE_NAME}-${svc.name}"
+                        yamlLines << "      repository: ${IMAGE_NAME}-${service.name}"
                         yamlLines << "      tag: ${tag}"
-                        yamlLines << "    port: ${svc.port}"
+                        yamlLines << "    port: ${service.port}"
                         yamlLines << "ingress:"
                         yamlLines << "  enabled: true"
                         yamlLines << "  host: ${DOMAIN}"
