@@ -7,7 +7,6 @@ pipeline {
         string(name: 'genai-service', defaultValue: 'main')
         string(name: 'vets-service', defaultValue: 'main')
         string(name: 'visits-service', defaultValue: 'main')
-
 //      string(name: 'zipkin', defaultValue: 'main')
 
     }
@@ -52,7 +51,7 @@ pipeline {
                         "namespace: ${namespace}",
                         "services:"
                     ]
-                    
+                    tags = [] 
                     for (service in services) {
                         def tag
                         if (service.branch == 'main') {
@@ -67,7 +66,7 @@ pipeline {
                                     """, returnStdout: true 
                                 ).trim()
                         }
-                        
+                        tags.add(tag)
                         echo "Tag for ${service.name} (${service.branch}): ${tag}"
 
                         // write new values.yaml
