@@ -103,7 +103,7 @@ pipeline {
                             """
                         }
                     bat """
-kubectl patch svc api-gateway -n test -p '{"spec": {"type": "NodePort"}}'
+kubectl patch svc api-gateway -n ${namespace} -p "{\\"spec\\": {\\"type\\": \\"NodePort\\"}}"
 """
                     }
                 }
