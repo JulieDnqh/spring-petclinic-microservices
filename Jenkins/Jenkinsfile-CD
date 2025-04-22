@@ -111,7 +111,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
                     script {
-                        def nodePort = bat(
+                        nodePort = bat(
                             script: "kubectl get svc api-gateway -n ${namespace} -o jsonpath={.spec.ports[0].nodePort}",
                             returnStdout: true
                         ).trim()
