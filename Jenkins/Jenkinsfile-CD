@@ -23,7 +23,7 @@ pipeline {
 
 
         
-        namespace = "${env.BUILD_ID}"
+        namespace = "dev-${env.BUILD_ID}"
     }
 
     stages {
@@ -98,8 +98,8 @@ pipeline {
         stage('Show access link') {
             steps {
                 script {
-                    echo "🌐 App Link: http://${DOMAIN}:30000"
-                    echo "📛 Deployed Namespace: ${namespace}"
+                    echo "App Link: http://${DOMAIN}:30000"
+                    echo "Deployed Namespace: ${namespace}"
                 }
             }
         }
