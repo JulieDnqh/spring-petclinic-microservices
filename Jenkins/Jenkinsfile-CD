@@ -126,12 +126,9 @@ pipeline {
 
 
                         
-                    
-                        currentBuild.description = """
-                        <a href="${DOMAIN}:${cleanNodePort}">Access link: ${DOMAIN}:${cleanNodePort}</a> <br />
-                        Namespace: ${namespace} <br />
-                        <a href="localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}">Delete link</a>
-                        """
+                        
+
+                        currentBuild.description = "[Access link](${DOMAIN}:${cleanNodePort}): ${DOMAIN}:${cleanNodePort} <br /> Namespace: ${namespace} <br /> [Delete link:](localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}) localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}"
                     }
                 }
             }
