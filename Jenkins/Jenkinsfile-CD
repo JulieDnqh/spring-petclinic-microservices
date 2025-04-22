@@ -121,7 +121,7 @@ echo "node_port: ${node_Port}"
                         def lines = node_Port.split('\r?\n')
 echo "Lines: ${lines}"
 
-                        def cleanNode_Port = lines[-1] 
+                        def cleanNodePort = lines[-1] 
 echo "cleanNodePort: ${cleanNodePort}"    
                         echo "Access link: ${DOMAIN}:${cleanNodePort}"
                         echo "Namespace: ${namespace}"
