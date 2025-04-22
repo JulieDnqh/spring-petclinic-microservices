@@ -15,12 +15,13 @@ pipeline {
     environment {
         REPO_URL = 'https://github.com/22127475/spring-petclinic-microservices.git'
         IMAGE_NAME = '22127475/spring-petclinic'
-        HELM_DIR = 'helm'
-        DOMAIN = 'myproject.local'
+        HELM_DIR = 'helm_chart'
+        namespace = "dev-${env.BUILD_ID}"
+        DOMAIN = "${namespace}.com"
 
 
         
-        namespace = "dev-${env.BUILD_ID}"
+        
     }
 
     stages {
@@ -34,20 +35,23 @@ pipeline {
                 script {
                     
                     services = [
-                        [name: 'config-server', branch: 'main', nodePort: 30001, port: 8888],
-                        [name: 'discovery-service', branch: 'main', nodePort: 30002, port: 8761 ],
+                        [name: 'config-server', branch: 'main', port: 8888],
+                        [name: 'discovery-service', branch: 'main',  port: 8761 ],
 
-                        [name: 'api-gateway', branch: 'main', nodePort: 30000, port: 8085],
-                        [name: 'customers-service', branch: params['customers-service'], nodePort: 30003, port: 8081],
-                        [name: 'visits-service', branch: params['visits-service'], nodePort: 30004, port: 8882], 
-                        [name: 'vets-service', branch: params['vets-service'], nodePort: 30005, port: 8883],
-                        [name: 'genai-service', branch: params['genai-service'], nodePort: 30006, port: 8884],
-//                      [name: 'zipkin', branch: 'main', nodePort: 30007, port: 9411],                        
-                        [name: 'admin-server', branch: 'main', nodePort: 30008, port: 9090],                         
+                        [name: 'api-gateway', branch: 'main',  port: 8085],
+                        [name: 'customers-service', branch: params['customers-service'],  port: 8081],
+                        [name: 'visits-service', branch: params['visits-service'],  port: 8882], 
+                        [name: 'vets-service', branch: params['vets-service'],  port: 8883],
+                        [name: 'genai-service', branch: params['genai-service'], port: 8884],
+//                      [name: 'zipkin', branch: 'main', port: 9411],                        
+                        [name: 'admin-server', branch: 'main', port: 9090],                         
                     ]
 
 
-                    
+                    def yamlLines = [
+                        "namespace: ${namespace}",
+                        "services:"
+                    ]
                     tags = []
                     for (service in services) {
                         def tag
@@ -65,6 +69,23 @@ pipeline {
                         }
                         tags.add(tag)
                         echo "Tag for ${service.name} (${service.branch}): ${tag}"
+
+                        // write new values.yaml
+                        def svc = services[i]
+                        def tag = tags[i]
+                        yamlLines << "  ${svc.name}:"
+                        yamlLines << "    enabled: true"
+                        yamlLines << "    image:"
+                        yamlLines << "      repository: ${IMAGE_NAME}-${svc.name}"
+                        yamlLines << "      tag: ${tag}"
+                        yamlLines << "    port: ${svc.port}"
+                        yamlLines << "ingress:"
+                        yamlLines << "  enabled: true"
+                        yamlLines << "  host: ${DOMAIN}"
+
+                        writeFile file: 'values.generated.yaml', text: yamlLines.join('\n')
+
+
                     }
                 }
             }
@@ -79,11 +100,9 @@ pipeline {
                             def tag = tags[i]
     
                             bat """
-                                helm upgrade --install ${service.name}-${namespace} ${HELM_DIR}/${service.name} ^
-                                    --namespace ${namespace} --create-namespace ^
-                                    --set image.repository=${IMAGE_NAME}-${service.name} ^
-                                    --set image.tag=${tag} ^
-                                    --set service.port=${service.port}
+                                helm upgrade --install petclinic-${namespace} ${HELM_DIR}/chart ^ 
+                                --namespace ${namespace} --create-namespace ^
+                                -f values.generated.yaml
                             """
                         }
                     }
@@ -94,8 +113,19 @@ pipeline {
         stage('Show access link') {
             steps {
                 script {
-                    echo "App Link: http://${DOMAIN}:30000"
-                    echo "Deployed Namespace: ${namespace}"
+                    def nodePort = bat(
+                        script: 'kubectl get svc api-gateway -n test -o jsonpath="{.spec.ports[0].nodePort}"',
+                        returnStdout: true
+                    ).trim()
+                    
+                    
+                    def lines = nodePort.split('\r?\n')
+                    def cleanNodePort = lines[-1] 
+
+                    echo "Access link: ${DOMAIN}"
+                    echo "Namespace: ${namespace}"
+                    echo "Delete link: "
+                    
                 }
             }
         }
