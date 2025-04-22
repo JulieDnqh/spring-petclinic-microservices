@@ -120,7 +120,7 @@ pipeline {
                         def lines = nodePort.split('\r?\n')
                         def cleanNodePort = lines[-1] 
     
-                        echo "Access link: ${DOMAIN}"
+                        echo "Access link: ${DOMAIN}:${cleanNodePort}"
                         echo "Namespace: ${namespace}"
                         echo "Delete link: localhost:8080/job/delete_job/buildWithParameters?token=delete_job&chart_name=petclinic-${namespace}&namepsace_name=${namespace}"
                         
