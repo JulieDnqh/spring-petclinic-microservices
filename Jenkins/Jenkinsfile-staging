@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     environment {
             DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
             DOCKER_REGISTRY        = '22127475'
@@ -19,12 +20,12 @@ pipeline {
                             echo "Building Docker image for tag ${LATEST_TAG}"
                             
 
-                            def mvnCommand = "./mvnw.cmd clean install -P buildDocker -DskipTests " +
-                                "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
-                                "-Ddocker.image.tag.commit=${LATEST_TAG} " +
-                                "-Dcontainer.build.extraarg=\"--push\""
+                            // def mvnCommand = "./mvnw.cmd clean install -P buildDocker -DskipTests " +
+                            //     "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
+                            //     "-Ddocker.image.tag.commit=${LATEST_TAG} " +
+                            //     "-Dcontainer.build.extraarg=\"--push\""
 
-                            bat mvnCommand
+                            // bat mvnCommand
                             } catch (e) {
                                 echo "Build failed: ${e.getMessage()}"
                                 error("Docker image build failed")
@@ -33,5 +34,4 @@ pipeline {
                 }
             }
         }
-    }
 }
