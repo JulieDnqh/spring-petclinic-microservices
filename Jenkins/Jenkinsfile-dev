@@ -9,7 +9,7 @@ pipeline {
     }
 
     stages {
-        stage(checkout main) {
+        stage('checkout main') {
             step() {
                 script() {
                     bat "git checkout -B main"
@@ -18,9 +18,7 @@ pipeline {
         }
         stage('Build and push to docker hub') {
             when {
-                expression {
-                    return env.BRANCH_NAME == 'main'
-                }
+                branch 'main'
             }
             steps {
                 script{
@@ -51,9 +49,7 @@ pipeline {
         }
         stage('Deploy using helm') {
             when {
-                expression {
-                    return env.BRANCH_NAME == 'main'
-                }
+                branch 'main'
             }
             steps {
                 script{
