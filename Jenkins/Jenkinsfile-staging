@@ -1,11 +1,44 @@
 pipeline {
     agent any
+    environment {
+            DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
+            DOCKER_REGISTRY        = '22127475'
+            LATEST_TAG            = ''
+        }
 
     stages {
-        stage('Test Kubeconfig on Windows') {
+        stage('Initialize') {
+            when {
+                tag "*"
+            }
             steps {
                 script {
-                    bat "echo 'hello world'"
+                     LATEST_TAG = bat(script: 'git describe --tags', returnStdout: true).trim()
+                    echo "Git Tag: ${LATEST_TAG}"
+                }
+            }
+        }
+
+        stage('Build and Push Images to Docker Hub') {
+            when {
+                tag "*"
+            }
+            steps {
+                script {
+                    docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID) { 
+                        try {
+                            def mvnCommand = "./mvnw.cmd clean install -P buildDocker -DskipTests " +
+                                "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
+                                "-Ddocker.image.tag.commit=${env.LATEST_TAG} " +
+                                "-Dcontainer.build.extraarg=\"--push\""
+
+                            echo "Building Docker image for tag ${env.LATEST_TAG}"
+                            bat mvnCommand
+                            } catch (e) {
+                                echo "Build failed: ${e.getMessage()}"
+                                error("Docker image build failed")
+                            }
+                    }
                 }
             }
         }
