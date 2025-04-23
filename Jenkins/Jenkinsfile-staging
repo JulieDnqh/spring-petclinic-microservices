@@ -29,10 +29,10 @@ pipeline {
                         try {
                             def mvnCommand = "./mvnw.cmd clean install -P buildDocker -DskipTests " +
                                 "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} " +
-                                "-Ddocker.image.tag.commit=${env.LATEST_TAG} " +
+                                "-Ddocker.image.tag.commit=${LATEST_TAG} " +
                                 "-Dcontainer.build.extraarg=\"--push\""
 
-                            echo "Building Docker image for tag ${env.LATEST_TAG}"
+                            echo "Building Docker image for tag ${LATEST_TAG}"
                             bat mvnCommand
                             } catch (e) {
                                 echo "Build failed: ${e.getMessage()}"
