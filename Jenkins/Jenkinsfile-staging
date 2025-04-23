@@ -3,7 +3,6 @@ pipeline {
     environment {
             DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
             DOCKER_REGISTRY        = '22127475'
-            LATEST_TAG            = ''
         }
 
         stage('Build and Push Images to Docker Hub') {
@@ -16,7 +15,7 @@ pipeline {
                         try {
                             def output = bat(script: 'git describe --tags', returnStdout: true).trim()
                             def lines = output.readLines()
-                            LATEST_TAG = lines[-1] 
+                            def LATEST_TAG = lines[lines.size() - 1]
                             echo "Building Docker image for tag ${LATEST_TAG}"
                             
 
