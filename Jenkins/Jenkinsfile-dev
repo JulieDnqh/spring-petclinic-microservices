@@ -19,16 +19,14 @@ pipeline {
                     if (branch != 'main') {
                         echo "Not on 'main' branch. Skipping entire pipeline."
                         currentBuild.result = 'SUCCESS'
-                        // Exit early
+                        
                         return
                     }
                 }
             }
         }
         stage('Build and push to docker hub') {
-            when {
-                expression { return CURRENT_BRANCH == 'main' }
-            }
+            
             steps {
                 script{
                     docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
@@ -57,9 +55,7 @@ pipeline {
             }
         }
         stage('Deploy using helm') {
-            when {
-                expression { return CURRENT_BRANCH == 'main' }
-            }
+            
             steps {
                 script{
                     services = [
