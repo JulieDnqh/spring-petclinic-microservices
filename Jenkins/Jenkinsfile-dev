@@ -22,7 +22,7 @@ pipeline {
         }
         stage('Build and push to docker hub') {
             when {
-                expression { return env.CURRENT_BRANCH == 'main' }
+                expression { return CURRENT_BRANCH == 'main' }
             }
             steps {
                 script{
@@ -53,7 +53,7 @@ pipeline {
         }
         stage('Deploy using helm') {
             when {
-                expression { return env.CURRENT_BRANCH == 'main' }
+                expression { return CURRENT_BRANCH == 'main' }
             }
             steps {
                 script{
