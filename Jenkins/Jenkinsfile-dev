@@ -6,7 +6,7 @@ pipeline {
         DOCKER_REGISTRY        = '22127475'
         IMAGE_NAME = '22127475/spring-petclinic'
         HELM_DIR = 'helm_chart'
-        CURRENT_BRANCH = ''
+        
     }
 
     stages {
@@ -15,8 +15,8 @@ pipeline {
                 script {
                     bat "git checkout -B main"
                     def branch = bat(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-                    env.CURRENT_BRANCH = branch
-                    echo "Checked out branch: ${env.CURRENT_BRANCH}"
+                    CURRENT_BRANCH = branch
+                    echo "Checked out branch: ${CURRENT_BRANCH}"
                 }
             }
         }
