@@ -17,6 +17,13 @@ pipeline {
     stages {
         stage('Prepare Workspace') {
             steps {
+                script {
+                    if (env.GIT_REF && env.GIT_REF.startsWith('refs/tags/')) {
+                        echo "Build skipped due to tag push"
+                        currentBuild.result = 'SUCCESS'
+                        return
+                    }
+                }
                 echo 'Cleaning workspace...'
                 cleanWs()
                 checkout scm
