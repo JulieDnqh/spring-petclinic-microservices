@@ -15,7 +15,8 @@ pipeline {
                 script {
                     bat "git checkout -B main"
                     def branch = bat(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-                    CURRENT_BRANCH = branch[branch.size() - 1]
+                    def line = branch.split('\r?\n')
+                    CURRENT_BRANCH = line[line.size() - 1]
                     echo "Checked out branch: ${CURRENT_BRANCH}"
                 }
             }
