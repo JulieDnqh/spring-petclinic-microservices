@@ -11,7 +11,9 @@ pipeline {
     stages {
         stage('Build and push to docker hub') {
             when {
-                branch 'main'
+                expression {
+                    return env.BRANCH_NAME == 'main'
+                }
             }
             steps {
                 script{
@@ -42,7 +44,9 @@ pipeline {
         }
         stage('Deploy using helm') {
             when {
-                branch 'main'
+                expression {
+                    return env.BRANCH_NAME == 'main'
+                }
             }
             steps {
                 script{
