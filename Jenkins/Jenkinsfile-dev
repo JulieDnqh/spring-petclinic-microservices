@@ -13,11 +13,15 @@ pipeline {
         stage('checkout main') {
             steps {
                 script {
-                    bat "git checkout -B main"
                     def branch = bat(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-                    def line = branch.split('\r?\n')
-                    CURRENT_BRANCH = line[line.size() - 1]
-                    echo "Checked out branch: ${CURRENT_BRANCH}"
+                    echo "Current branch: ${branch}"
+                    
+                    if (branch != 'main') {
+                        echo "Not on 'main' branch. Skipping entire pipeline."
+                        currentBuild.result = 'SUCCESS'
+                        // Exit early
+                        return
+                    }
                 }
             }
         }
