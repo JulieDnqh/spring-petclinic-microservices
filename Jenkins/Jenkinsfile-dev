@@ -13,6 +13,7 @@ pipeline {
             steps {
                 script {
                     bat "git checkout -B main"
+                    bat 'git rev-parse --abbrev-ref HEAD'
                 }
             }
         }
