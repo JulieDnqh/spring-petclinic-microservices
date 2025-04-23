@@ -5,7 +5,7 @@ pipeline {
             DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
             DOCKER_REGISTRY        = '22127475'
         }
-
+    stages {
         stage('Build and Push Images to Docker Hub') {
             when {
                 tag "*"
@@ -34,4 +34,6 @@ pipeline {
                 }
             }
         }
+    }
+        
 }
