@@ -6,6 +6,7 @@ pipeline {
         DOCKER_REGISTRY        = '22127475'
         IMAGE_NAME = '22127475/spring-petclinic'
         HELM_DIR = 'helm_chart'
+        CURRENT_BRANCH = ''
     }
 
     stages {
@@ -13,13 +14,15 @@ pipeline {
             steps {
                 script {
                     bat "git checkout -B main"
-                    bat 'git rev-parse --abbrev-ref HEAD'
+                    def branch = bat(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+                    env.CURRENT_BRANCH = branch
+                    echo "Checked out branch: ${env.CURRENT_BRANCH}"
                 }
             }
         }
         stage('Build and push to docker hub') {
             when {
-                branch 'main'
+                expression { return env.CURRENT_BRANCH == 'main' }
             }
             steps {
                 script{
@@ -50,7 +53,7 @@ pipeline {
         }
         stage('Deploy using helm') {
             when {
-                branch 'main'
+                expression { return env.CURRENT_BRANCH == 'main' }
             }
             steps {
                 script{
