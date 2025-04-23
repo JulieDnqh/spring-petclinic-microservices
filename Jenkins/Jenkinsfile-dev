@@ -9,6 +9,13 @@ pipeline {
     }
 
     stages {
+        stage(checkout main) {
+            step() {
+                script() {
+                    bat "git checkout -B main"
+                }
+            }
+        }
         stage('Build and push to docker hub') {
             when {
                 expression {
