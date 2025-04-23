@@ -20,9 +20,8 @@ pipeline {
                     
                     if (branch != 'main') {
                         echo "Not on 'main' branch. Skipping entire pipeline."
-                        currentBuild.result = 'SUCCESS'
+                        error("This pipeline only runs on the 'main' branch.")
                         
-                        return
                     }
                 }
             }
