@@ -1,9 +1,6 @@
 // Jenkinsfile
 pipeline {
     agent any
-    // {
-    //     label '!built-in'
-    // }
     
 
     options {
