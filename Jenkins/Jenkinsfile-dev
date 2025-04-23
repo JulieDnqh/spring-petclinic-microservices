@@ -10,8 +10,8 @@ pipeline {
 
     stages {
         stage('checkout main') {
-            step() {
-                script() {
+            steps {
+                script {
                     bat "git checkout -B main"
                 }
             }
