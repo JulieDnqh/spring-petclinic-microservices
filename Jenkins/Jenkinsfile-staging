@@ -4,7 +4,9 @@ pipeline {
     stages {
         stage('Test Kubeconfig on Windows') {
             steps {
-                
+                script {
+                    echo "hello world"
+                }
             }
         }
     }
