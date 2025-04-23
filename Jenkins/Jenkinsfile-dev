@@ -4,6 +4,8 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
         DOCKER_REGISTRY        = '22127475'
+        IMAGE_NAME = '22127475/spring-petclinic'
+        HELM_DIR = 'helm_chart'
     }
 
     stages {
