@@ -97,7 +97,7 @@ pipeline {
                     withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
                         
                                 bat """
-                                    helm upgrade --install petclinic ${HELM_DIR} --namespace dev --values=dev-values.yaml
+                                    helm upgrade --install petclinic ${HELM_DIR} --namespace dev --values=dev-values.yaml --force
                                 """
                             
                                 bat """
