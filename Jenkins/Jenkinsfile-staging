@@ -14,7 +14,9 @@ pipeline {
                 script {
                     docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID) { 
                         try {
-                            LATEST_TAG = bat(script: 'git describe --tags', returnStdout: true).trim()
+                            def output = bat(script: 'git describe --tags', returnStdout: true).trim()
+                            def lines = output.readLines()
+                            LATEST_TAG = lines[-1] 
                             echo "Building Docker image for tag ${LATEST_TAG}"
                             
 
