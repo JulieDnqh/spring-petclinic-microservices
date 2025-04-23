@@ -18,11 +18,11 @@ pipeline {
                     def branch = lines[lines.size() - 1]
                     echo "Current branch: ${branch}"
                     
-                    if (branch != 'main') {
-                        echo "Not on 'main' branch. Skipping entire pipeline."
-                        error("This pipeline only runs on the 'main' branch.")
+                    //if (branch != 'main') {
+                      //  echo "Not on 'main' branch. Skipping entire pipeline."
+                        //error("This pipeline only runs on the 'main' branch.")
                         
-                    }
+                    //}
                 }
             }
         }
