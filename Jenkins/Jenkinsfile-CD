@@ -7,8 +7,6 @@ pipeline {
         string(name: 'genai-service', defaultValue: 'main')
         string(name: 'vets-service', defaultValue: 'main')
         string(name: 'visits-service', defaultValue: 'main')
-//      string(name: 'zipkin', defaultValue: 'main')
-
     }
 
     environment {
@@ -16,28 +14,24 @@ pipeline {
         IMAGE_NAME = '22127475/spring-petclinic'
         HELM_DIR = 'helm_chart'
         namespace = "dev-${env.BUILD_ID}"
-        DOMAIN = "${namespace}.com"
-
-
-        
-        
+        DOMAIN = "${namespace}.com"    
     }
 
     stages {
-        stage('Deploy services') {
+        stage('Prepare services') {
             steps {
                 script {
                     
                     services = [
                         [name: 'config-server', branch: 'main', port: 8888],
-                        [name: 'discovery-service', branch: 'main',  port: 8761 ],
+                        [name: 'discovery-server', branch: 'main',  port: 8761 ],
 
-                        [name: 'api-gateway', branch: 'main',  port: 8085],
+                        [name: 'api-gateway', branch: 'main',  port: 8080],
                         [name: 'customers-service', branch: params['customers-service'],  port: 8081],
                         [name: 'visits-service', branch: params['visits-service'],  port: 8882], 
                         [name: 'vets-service', branch: params['vets-service'],  port: 8883],
                         [name: 'genai-service', branch: params['genai-service'], port: 8884],
-//                      [name: 'zipkin', branch: 'main', port: 9411],                        
+                    //  [name: 'zipkin', branch: 'main', port: 9411],                        
                         [name: 'admin-server', branch: 'main', port: 9090],                         
                     ]
 
@@ -50,7 +44,7 @@ pipeline {
                         "  host: ${DOMAIN}",
                         "services:"
                     ]
-                    // tags = [] 
+                    
                     for (service in services) {
                         def tag
                         if (service.branch == 'main') {
@@ -65,12 +59,12 @@ pipeline {
                                     """, returnStdout: true 
                                 ).trim()
                         }
-                        // tags.add(tag)
+                        
                         echo "Tag for ${service.name} (${service.branch}): ${tag}"
 
-                        // write new values.yaml
                         
                         
+                        // Add service to YAML lines
                         yamlLines << "  ${service.name}:"
                         yamlLines << "    enabled: true"
                         yamlLines << "    image:"
@@ -78,13 +72,11 @@ pipeline {
                         yamlLines << "      tag: ${tag}"
                         yamlLines << "    port: ${service.port}"
 
-                        writeFile file: 'values.generated.yaml', text: yamlLines.join('\n')
+                        writeFile file: 'generated-values.yaml', text: yamlLines.join('\n')
                         
 
                     }
 
-
-                    bat "type values.generated.yaml"
                 }
             }
         }
@@ -95,7 +87,7 @@ pipeline {
                     withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
                     
                             bat """
-                                helm upgrade --install petclinic-${namespace} ${HELM_DIR} --namespace ${namespace} --create-namespace --values=values.generated.yaml
+                                helm upgrade --install petclinic-${namespace} ${HELM_DIR} --namespace ${namespace} --create-namespace --values=generated_values.yaml
                             """
                         
                             bat """
@@ -106,7 +98,7 @@ pipeline {
             }
         }
 
-        stage('Show access link') {
+        stage('Show access links') {
             steps {
                 withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
                     script {
@@ -120,7 +112,7 @@ echo "Lines: ${lines}"
                         def cleanNodePort = lines[lines.size() - 1] 
 echo "cleanNodePort: ${cleanNodePort}"    
                         echo "Access link: ${DOMAIN}:${cleanNodePort}"
-                        echo "Namespace: ${namespace}"
+                        
                         echo "Delete link: localhost:8080/job/delete_developer_job/buildWithParameters?token=9a8d2c11391892f18cd33535a9afe3330a84934babbfdfbdfcc23accffbac188&chart_name=petclinic-${namespace}&namespace_name=${namespace}"
 
 
