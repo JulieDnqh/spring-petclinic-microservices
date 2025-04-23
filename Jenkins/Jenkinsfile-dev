@@ -13,7 +13,9 @@ pipeline {
         stage('checkout main') {
             steps {
                 script {
-                    def branch = bat(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+                    def output = bat(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+                    def lines = output.split('\r?\n')
+                    def branch = lines[lines.size() - 1]
                     echo "Current branch: ${branch}"
                     
                     if (branch != 'main') {
