@@ -1,0 +1,98 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS_ID = 'Docker_Jenkins_CD'
+        DOCKER_REGISTRY        = '22127475'
+    }
+
+    stages {
+        stage('Build and push to docker hub') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script{
+                    docker.withRegistry("https://index.docker.io/v1/", env.DOCKERHUB_CREDENTIALS_ID){
+                        try{
+                            
+                            commit_id = 'latest'
+                            
+
+                            def mvnCommand = "./mvnw.cmd clean install -P buildDocker -DskipTests "+
+                                             "-Ddocker.image.prefix=${env.DOCKER_REGISTRY} "+
+                                             "-Ddocker.image.tag.commit=${commit_id} "+
+                                             "-Dcontainer.build.extraarg=\"--push\""
+
+                            echo "Executing Maven command on Windows to build images: ${mvnCommand}"
+                            
+                            bat mvnCommand
+
+                            echo "Maven build completed successfully."
+                        }
+                        catch (e) {
+                            echo "Error building images via Maven: ${e.getMessage()}"
+                            error(message: "Failed to build images via Maven")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    stage('Deploy using helm') {
+        when {
+            branch 'main'
+        }
+        steps {
+            script{
+                services = [
+                    [name: 'config-server', port: 8888],
+                    [name: 'discovery-server', port: 8761 ],
+
+                    [name: 'api-gateway',port: 8080],
+                    [name: 'customers-service',  port: 8081],
+                    [name: 'visits-service', port: 8882], 
+                    [name: 'vets-service', port: 8883],
+                    [name: 'genai-service', port: 8884],              
+                    [name: 'admin-server', port: 9090],                         
+                ]
+
+                def yamlLines = [
+                    "namespace: ${namespace}",
+
+                    "ingress:",
+                    "  enabled: true",
+                    "  host: ${DOMAIN}",
+                    "services:"
+                ]
+
+                for (service in services) {
+                    yamlLines << "  ${service.name}:"
+                    yamlLines << "    enabled: true"
+                    yamlLines << "    image:"
+                    yamlLines << "      repository: ${IMAGE_NAME}-${service.name}"
+                    yamlLines << "      tag: latest"
+                    yamlLines << "    port: ${service.port}"
+
+                    writeFile file: 'dev-values.yaml', text: yamlLines.join('\n')
+                    
+
+                }
+
+                bat "type dev-values.yaml"
+                
+                withCredentials([file(credentialsId: 'k8s-secret-file', variable: 'KUBECONFIG')]) {
+                    
+                            bat """
+                                helm upgrade --install petclinic ${HELM_DIR} --namespace dev --values=dev-values.yaml
+                            """
+                        
+                            bat """
+                                kubectl patch svc api-gateway -n ${namespace} -p "{\\"spec\\": {\\"type\\": \\"NodePort\\"}}"
+                            """
+                }
+                
+            }
+        }
+    }
+}
